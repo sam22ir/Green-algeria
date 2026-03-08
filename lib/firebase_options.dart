@@ -41,48 +41,47 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDCJ1IrLRb0IjyAFSkw8JQ_tC6MNVpVx00',
-    appId: '1:177139315328:web:ed0a30ebef5f16dd21ec65',
-    messagingSenderId: '177139315328',
-    projectId: 'green-algeria-f0278',
-    authDomain: 'green-algeria-f0278.firebaseapp.com',
-    storageBucket: 'green-algeria-f0278.firebasestorage.app',
+    apiKey: 'AIzaSyACL3PIvQjRnMLNprEIacbRR-8WZxz1hNQ',
+    appId: '1:318014479319:web:f8c6b75974ea005118c992',
+    messagingSenderId: '318014479319',
+    projectId: 'green-algeria-firebase',
+    authDomain: 'green-algeria-firebase.firebaseapp.com',
+    storageBucket: 'green-algeria-firebase.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBsWC9vlgNmgPZJafFlxafMEOaa6FCYqlw',
-    appId: '1:177139315328:android:e67b7072ba3ab18b21ec65',
-    messagingSenderId: '177139315328',
-    projectId: 'green-algeria-f0278',
-    storageBucket: 'green-algeria-f0278.firebasestorage.app',
+    apiKey: 'AIzaSyANfqdn5R75og3UtTUTXuKFQ6Bad5p-RFQ',
+    appId: '1:318014479319:android:a68a1d23cc60641118c992',
+    messagingSenderId: '318014479319',
+    projectId: 'green-algeria-firebase',
+    storageBucket: 'green-algeria-firebase.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBafZ3zrXb3_GDVTt1SR-Yb-6E_8nxcEGo',
-    appId: '1:177139315328:ios:97d1a0dac68bed2521ec65',
-    messagingSenderId: '177139315328',
-    projectId: 'green-algeria-f0278',
-    storageBucket: 'green-algeria-f0278.firebasestorage.app',
-    androidClientId: '177139315328-8dqpc160dtk394qhq8ffrhvlt2def27j.apps.googleusercontent.com',
-    iosClientId: '177139315328-9m36slfmvn3u72m17gfrfftbki09sfeb.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCJi49cYZHCzn3GXK33DYadj2s8YLfsklQ',
+    appId: '1:318014479319:ios:a9f4bfa57bed4e8618c992',
+    messagingSenderId: '318014479319',
+    projectId: 'green-algeria-firebase',
+    storageBucket: 'green-algeria-firebase.firebasestorage.app',
     iosBundleId: 'com.saadisamir.greenAlgeria',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBafZ3zrXb3_GDVTt1SR-Yb-6E_8nxcEGo',
-    appId: '1:177139315328:ios:97d1a0dac68bed2521ec65',
-    messagingSenderId: '177139315328',
-    projectId: 'green-algeria-f0278',
-    storageBucket: 'green-algeria-f0278.firebasestorage.app',
+    apiKey: 'AIzaSyCJi49cYZHCzn3GXK33DYadj2s8YLfsklQ',
+    appId: '1:318014479319:ios:a9f4bfa57bed4e8618c992',
+    messagingSenderId: '318014479319',
+    projectId: 'green-algeria-firebase',
+    storageBucket: 'green-algeria-firebase.firebasestorage.app',
     iosBundleId: 'com.saadisamir.greenAlgeria',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDCJ1IrLRb0IjyAFSkw8JQ_tC6MNVpVx00',
-    appId: '1:177139315328:web:1a2419de487f6c2b21ec65',
-    messagingSenderId: '177139315328',
-    projectId: 'green-algeria-f0278',
-    authDomain: 'green-algeria-f0278.firebaseapp.com',
-    storageBucket: 'green-algeria-f0278.firebasestorage.app',
+    apiKey: 'AIzaSyACL3PIvQjRnMLNprEIacbRR-8WZxz1hNQ',
+    appId: '1:318014479319:web:b876d2bbee2f18d218c992',
+    messagingSenderId: '318014479319',
+    projectId: 'green-algeria-firebase',
+    authDomain: 'green-algeria-firebase.firebaseapp.com',
+    storageBucket: 'green-algeria-firebase.firebasestorage.app',
   );
+
 }
