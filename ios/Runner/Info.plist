@@ -45,5 +45,17 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- Permissions for Geolocator -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location to document where you plant trees.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background.</string>
+	
+	<!-- Permissions for Image Picker -->
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to take photos of planted trees.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs photos access to upload pictures of planted trees.</string>
 </dict>
 </plist>

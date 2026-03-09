@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/notification_service.dart';
+import '../../services/auth_service.dart';
 
 class SettingsProvider with ChangeNotifier {
   SharedPreferences? _prefs;
@@ -18,9 +20,7 @@ class SettingsProvider with ChangeNotifier {
 
   bool get isDarkMode {
     if (_themeMode == ThemeMode.system) {
-      // Cannot reliably provide bool without build context, default to checking Brightness but
-      // normally we just use standard methods.
-      return false; // Not used directly in UI switch without context
+      return false; 
     }
     return _themeMode == ThemeMode.dark;
   }
@@ -39,7 +39,7 @@ class SettingsProvider with ChangeNotifier {
 
     final langCode = _prefs!.getString('language_code');
     if (langCode == 'en') _locale = const Locale('en', 'US');
-    else _locale = const Locale('ar', 'AE'); // default Default
+    else _locale = const Locale('ar', 'AE'); 
 
     _notificationsEnabled = _prefs!.getBool('notifications_enabled') ?? true;
     
@@ -68,5 +68,20 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
     await _initPrefs();
     await _prefs!.setBool('notifications_enabled', enabled);
+
+    // Sync state with FCM logic
+    final userModel = AuthService().currentUserModel;
+    if (enabled) {
+      await NotificationService().subscribeToTopic('national-notifications');
+      if (userModel?.provinceId != null) {
+        await NotificationService().subscribeToTopic('province-${userModel!.provinceId}');
+      }
+    } else {
+      await NotificationService().unsubscribeFromTopic('national-notifications');
+      if (userModel?.provinceId != null) {
+        await NotificationService().unsubscribeFromTopic('province-${userModel!.provinceId}');
+      }
+    }
   }
 }
+

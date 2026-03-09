@@ -6,6 +6,7 @@ class AppColors {
   static const Color oliveGrove = Color(0xFF5E7153);
   static const Color linenWhite = Color(0xFFF4F1EA);
   static const Color ivorySand = Color(0xFFE8E5DF);
+  static const Color sageCream = Color(0xFFE7EADF);
   static const Color slateCharcoal = Color(0xFF2E3331);
   static const Color oliveGrey = Color(0xFF8A9A86);
   

@@ -46,5 +46,19 @@
   
   "target": "Target",
   "daysRemaining": "Days Remaining",
-  "participateNow": "Participate Now"
+  "participateNow": "Participate Now",
+  
+  "greeting": "Hello,",
+  "treesPlantedNationally": "Trees Planted Nationally",
+  "nextCampaign": "Next National Campaign:",
+  "startsIn": "Starts in",
+  "days": "Days",
+  "hours": "Hours",
+  "minutes": "Minutes",
+  "recentCampaigns": "Recent Campaigns",
+  "viewAll": "View All",
+  "noUpcomingCampaign": "No upcoming campaigns right now. Get ready to plant your next tree!",
+  "completed": "Completed",
+  "treesPlanted": "trees planted",
+  "volunteer": "Volunteer"
 }

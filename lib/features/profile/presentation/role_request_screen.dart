@@ -3,6 +3,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/custom_buttons.dart';
+import '../../../../services/auth_service.dart';
+import '../../../../services/supabase_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RoleRequestScreen extends StatefulWidget {
@@ -28,18 +30,53 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
   }
 
   void _submitRequest() async {
-    setState(() => _isSubmitting = true);
-    // Simulate network delay for request submission
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      setState(() => _isSubmitting = false);
+    if (_nameController.text.trim().isEmpty || _phoneController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.requestSubmittedSuccess),
-          backgroundColor: AppColors.mossForest,
+        const SnackBar(
+          content: Text('يرجى ملء الحقول الإلزامية (الاسم ورقم الهاتف)'),
+          backgroundColor: Color(0xFFD9534F),
         ),
       );
-      Navigator.of(context).pop();
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    
+    try {
+      final user = AuthService().firebaseUser;
+      if (user == null) throw Exception('User not logged in');
+
+      final requestedRole = _selectedRoleIndex == 0 ? 'local_organizer' : 'provincial_organizer';
+
+      await SupabaseService.client.from('upgrade_requests').insert({
+        'user_id': user.uid,
+        'requested_role': requestedRole,
+        'status': 'pending',
+        'reason': _reasonController.text.trim(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.requestSubmittedSuccess),
+            backgroundColor: AppColors.mossForest,
+          ),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('حدث خطأ أثناء إرسال الطلب: $e'),
+            backgroundColor: const Color(0xFFD9534F),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 

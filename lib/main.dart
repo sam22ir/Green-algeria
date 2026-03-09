@@ -6,18 +6,25 @@ import 'core/routing/app_router.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/supabase_service.dart';
+import 'services/notification_service.dart';
+import 'services/sync_engine.dart';
 import 'package:provider/provider.dart';
 import 'core/providers/settings_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  await dotenv.load(fileName: ".env");
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
   await SupabaseService.initialize();
+  await NotificationService().init();
+  SyncEngine().initialize();
 
   runApp(
     MultiProvider(

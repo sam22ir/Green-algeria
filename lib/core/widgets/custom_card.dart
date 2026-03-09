@@ -8,6 +8,7 @@ class CustomCard extends StatelessWidget {
   final VoidCallback? onTap;
   final double blur;
   final double opacity;
+  final Color? color;
 
   const CustomCard({
     super.key,
@@ -16,6 +17,7 @@ class CustomCard extends StatelessWidget {
     this.onTap,
     this.blur = 10.0,
     this.opacity = 0.7,
+    this.color,
   });
 
   @override
@@ -29,7 +31,7 @@ class CustomCard extends StatelessWidget {
           child: Container(
             padding: padding ?? const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(opacity),
+              color: color ?? Colors.white.withOpacity(opacity),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(

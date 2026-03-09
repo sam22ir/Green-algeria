@@ -23,8 +23,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _authService.signInWithGoogle();
-      if (response != null && mounted) {
+      await _authService.signInWithGoogle();
+      if (mounted) {
         context.go('/');
       }
     } catch (e) {

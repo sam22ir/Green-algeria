@@ -46,5 +46,19 @@
   
   "target": "الهدف",
   "daysRemaining": "أيام متبقية",
-  "participateNow": "شارك الآن"
+  "participateNow": "شارك الآن",
+  
+  "greeting": "مرحباً،",
+  "treesPlantedNationally": "أشجار تم غرسها وطنياً",
+  "nextCampaign": "حملة التشجير القادمة:",
+  "startsIn": "تبدأ بعد",
+  "days": "أيام",
+  "hours": "ساعات",
+  "minutes": "دقيقة",
+  "recentCampaigns": "حملات سابقة",
+  "viewAll": "عرض الكل",
+  "noUpcomingCampaign": "لا توجد حملات قادمة حالياً. استعد لزرع شجرتك القادمة!",
+  "completed": "مكتملة",
+  "treesPlanted": "شجرة مغروسة",
+  "volunteer": "متطوع"
 }

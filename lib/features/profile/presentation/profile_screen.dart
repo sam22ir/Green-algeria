@@ -3,8 +3,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_card.dart';
 import '../../../services/auth_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../services/supabase_service.dart';
+import '../../../models/user_model.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,9 +15,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _userName = 'مستخدم';
-  int _treesPlanted = 0;
   bool _isLoading = true;
+  UserModel? _currentUser;
+  int _nationalRank = 0;
+  List<Map<String, dynamic>> _plantingHistory = [];
 
   @override
   void initState() {
@@ -25,20 +27,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadProfileData() async {
+    setState(() => _isLoading = true);
     try {
-      final user = AuthService().currentUser;
+      final user = AuthService().firebaseUser;
       if (user != null) {
-        if (user.userMetadata?['full_name'] != null) {
-          _userName = user.userMetadata!['full_name'];
+        // Fetch user basic data
+        _currentUser = await SupabaseService().getUserRecord(user.uid);
+        
+        // Fetch rank from leaderboard cache
+        final leaderboardData = await SupabaseService.client
+            .from('leaderboard_cache')
+            .select('rank_national')
+            .eq('user_id', user.uid)
+            .maybeSingle();
+            
+        if (leaderboardData != null) {
+          _nationalRank = leaderboardData['rank_national'] ?? 0;
         }
 
-        // Fetch planted trees count
-        final res = await Supabase.instance.client
-            .from('planted_trees')
-            .select('id')
-            .eq('planter_id', user.id);
-        
-        _treesPlanted = (res as List).length;
+        // Fetch planting history (last 10)
+        final historyRes = await SupabaseService.client
+            .from('tree_plantings')
+            .select('''
+              id,
+              planted_at,
+              campaigns (title)
+            ''')
+            .eq('user_id', user.uid)
+            .order('planted_at', ascending: false)
+            .limit(10);
+            
+        _plantingHistory = List<Map<String, dynamic>>.from(historyRes);
       }
     } catch (e) {
       debugPrint('Error loading profile: $e');
@@ -51,28 +70,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: AppColors.linenWhite,
+        body: Center(child: CircularProgressIndicator(color: AppColors.mossForest)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.linenWhite,
+      appBar: AppBar(
+        backgroundColor: AppColors.linenWhite,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'الملف الشخصي',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.slateCharcoal,
+            fontFamily: 'Plus Jakarta Sans',
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.settings, color: AppColors.slateCharcoal),
+          onPressed: () => context.push('/settings'),
+        ),
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: RefreshIndicator(
+          onRefresh: _loadProfileData,
+          color: AppColors.mossForest,
+          child: ListView(
+            padding: const EdgeInsets.all(24),
             children: [
-              if (_isLoading)
-                const Padding(
-                  padding: EdgeInsets.all(48.0),
-                  child: Center(child: CircularProgressIndicator(color: AppColors.mossForest)),
-                )
-              else ...[
-                _buildHeader(),
-                const SizedBox(height: 24),
-                _buildStatsCard(),
-              ],
+              _buildHeader(),
+              const SizedBox(height: 24),
+              _buildStatsRow(),
               const SizedBox(height: 32),
-              _buildActionsList(context),
-              const SizedBox(height: 32),
-              _buildLogoutButton(context),
+              _buildHistorySection(),
             ],
           ),
         ),
@@ -81,171 +117,192 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildHeader() {
-    return CustomCard(
-      blur: 20,
-      opacity: 0.85,
-      padding: const EdgeInsets.symmetric(vertical: 32),
-      child: Column(
-        children: [
-          const CircleAvatar(
-            radius: 56,
-            backgroundColor: AppColors.oliveGrey,
-            child: Icon(Icons.person, size: 64, color: AppColors.linenWhite),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _userName,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.slateCharcoal,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.mossForest.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.mossForest.withOpacity(0.3)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.energy_savings_leaf, size: 16, color: AppColors.mossForest),
-                const SizedBox(width: 8),
-                const Text(
-                  'متطوع نشط',
-                  style: TextStyle(
-                    color: AppColors.mossForest,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatsCard() {
-    return CustomCard(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildStatColumn('0', 'حملة'),
-          Container(width: 1, height: 40, color: AppColors.ivorySand),
-          _buildStatColumn('$_treesPlanted', 'شجرة'),
-          Container(width: 1, height: 40, color: AppColors.ivorySand),
-          _buildStatColumn('-', 'وطنياً', isHighlight: true),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatColumn(String value, String label, {bool isHighlight = false}) {
     return Column(
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: isHighlight ? AppColors.mossForest : AppColors.slateCharcoal,
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.mossForest, width: 3),
+          ),
+          child: CircleAvatar(
+            radius: 56,
+            backgroundColor: AppColors.ivorySand,
+            backgroundImage: _currentUser?.avatarUrl != null 
+                ? NetworkImage(_currentUser!.avatarUrl!) 
+                : null,
+            child: _currentUser?.avatarUrl == null 
+                ? const Icon(Icons.person, size: 64, color: AppColors.oliveGrey)
+                : null,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 16),
         Text(
-          label,
+          _currentUser?.fullName ?? 'مستخدم',
           style: const TextStyle(
-            fontSize: 14,
-            color: AppColors.oliveGrey,
-            fontWeight: FontWeight.w600,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppColors.slateCharcoal,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.oliveGrove,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            _getRoleDisplayName(_currentUser?.role),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
           ),
         ),
       ],
     );
   }
+  
+  String _getRoleDisplayName(String? role) {
+    switch (role) {
+      case 'developer': return 'مطور';
+      case 'initiative_owner': return 'صاحب المبادرة';
+      case 'provincial_organizer': return 'منظم ولائي';
+      case 'local_organizer': return 'منظم محلي';
+      default: return 'متطوع';
+    }
+  }
 
-  Widget _buildActionsList(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+  Widget _buildStatsRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(child: _buildStatCard(_currentUser?.treeCount.toString() ?? '0', 'الأشجار المغروسة', Icons.park_outlined)),
+        const SizedBox(width: 12),
+        Expanded(child: _buildStatCard(_nationalRank > 0 ? '#$_nationalRank' : '-', 'الرتبة', Icons.emoji_events_outlined)),
+        const SizedBox(width: 12),
+        Expanded(child: _buildStatCard(_currentUser?.campaignCount.toString() ?? '0', 'الحملات', Icons.nature_people_outlined)),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(String value, String label, IconData icon) {
     return CustomCard(
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      color: AppColors.ivorySand,
       child: Column(
         children: [
-          _buildActionItem(Icons.edit_outlined, l10n.editProfile, context: context),
-          _buildDivider(),
-          _buildActionItem(Icons.history, l10n.myContributionsHistory, context: context),
-          _buildDivider(),
-          _buildActionItem(Icons.settings_outlined, l10n.settings, onTap: () => context.push('/settings'), context: context),
-          _buildDivider(),
-          _buildActionItem(Icons.palette_outlined, l10n.appearance, context: context),
-          _buildDivider(),
-          _buildActionItem(Icons.upgrade_outlined, l10n.upgradeAccount, onTap: () => context.push('/role-request'), context: context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionItem(IconData icon, String title, {VoidCallback? onTap, required BuildContext context}) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      leading: Icon(icon, color: AppColors.mossForest),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          color: AppColors.slateCharcoal,
-        ),
-      ),
-      trailing: const Icon(Icons.chevron_left, color: AppColors.oliveGrey),
-      onTap: onTap ?? () {},
-    );
-  }
-
-  Widget _buildDivider() {
-    return const Divider(
-      color: AppColors.ivorySand,
-      height: 1,
-      thickness: 1,
-      indent: 24,
-      endIndent: 24,
-    );
-  }
-
-  Widget _buildLogoutButton(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return OutlinedButton(
-      onPressed: () async {
-        await AuthService().signOut();
-        if (context.mounted) {
-          context.go('/login');
-        }
-      },
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        side: const BorderSide(color: Color(0xFFD9534F), width: 1.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.logout, color: Color(0xFFD9534F)),
-          const SizedBox(width: 8),
+          Icon(icon, color: AppColors.mossForest, size: 24),
+          const SizedBox(height: 8),
           Text(
-            l10n.logout,
+            value,
             style: const TextStyle(
-              color: Color(0xFFD9534F),
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: AppColors.slateCharcoal,
             ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.oliveGrey,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildHistorySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'سجل التشجير',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.mossForest,
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (_plantingHistory.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: Text(
+                'لم يتم توثيق أي أشجار بعد. ابدأ الغرس الآن!',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.oliveGrey),
+              ),
+            ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _plantingHistory.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final item = _plantingHistory[index];
+              final dateStr = item['planted_at'] as String;
+              final date = DateTime.parse(dateStr);
+              final campaigns = item['campaigns'];
+              final title = (campaigns != null && campaigns is Map && campaigns['title'] != null) 
+                  ? campaigns['title'] 
+                  : 'غرس فردي';
+                  
+              return CustomCard(
+                color: AppColors.ivorySand,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.mossForest.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.energy_savings_leaf, color: AppColors.mossForest, size: 20),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.slateCharcoal,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            DateFormat('d MMMM yyyy', 'ar').format(date),
+                            style: const TextStyle(
+                              color: AppColors.oliveGrey,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 }

@@ -1,1 +1,30 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"green-algeria-firebase","appId":"1:318014479319:android:a68a1d23cc60641118c992","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"green-algeria-firebase","configurations":{"android":"1:318014479319:android:a68a1d23cc60641118c992","ios":"1:318014479319:ios:a9f4bfa57bed4e8618c992","macos":"1:318014479319:ios:a9f4bfa57bed4e8618c992","web":"1:318014479319:web:f8c6b75974ea005118c992","windows":"1:318014479319:web:b876d2bbee2f18d218c992"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "green-algeria-firebase",
+          "appId": "1:318014479319:android:a68a1d23cc60641118c992",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "green-algeria-firebase",
+          "configurations": {
+            "android": "1:318014479319:android:a68a1d23cc60641118c992",
+            "ios": "1:318014479319:ios:a9f4bfa57bed4e8618c992",
+            "macos": "1:318014479319:ios:a9f4bfa57bed4e8618c992",
+            "web": "1:318014479319:web:f8c6b75974ea005118c992",
+            "windows": "1:318014479319:web:b876d2bbee2f18d218c992"
+          }
+        }
+      }
+    }
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true
+    }
+  }
+}

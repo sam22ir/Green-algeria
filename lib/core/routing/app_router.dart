@@ -5,29 +5,38 @@ import '../theme/app_colors.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/campaigns/presentation/campaigns_screen.dart';
+import '../../features/campaigns/presentation/campaign_details_screen.dart';
+import '../../models/campaign_model.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/role_request_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/splash_screen.dart';
 import '../../services/auth_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/',
+    initialLocation: '/splash',
     redirect: (context, state) {
       final authService = AuthService();
-      final isAuth = authService.currentUser != null;
+      final isAuth = authService.firebaseUser != null;
       final isLoginRoute = state.uri.toString() == '/login' || state.uri.toString() == '/register';
+      final isSplashRoute = state.uri.toString() == '/splash';
 
+      if (isSplashRoute) return null; // Let splash screen handle the logic
       if (!isAuth && !isLoginRoute) return '/login';
       if (isAuth && isLoginRoute) return '/';
 
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
@@ -60,6 +69,15 @@ class AppRouter {
           GoRoute(
             path: '/campaigns',
             builder: (context, state) => const CampaignsScreen(),
+            routes: [
+              GoRoute(
+                path: 'details',
+                builder: (context, state) {
+                  final campaign = state.extra as CampaignModel;
+                  return CampaignDetailsScreen(campaign: campaign);
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: '/leaderboard',
