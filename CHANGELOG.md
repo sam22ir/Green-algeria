@@ -1,158 +1,156 @@
-# Changelog — Green Algeria 🌿
+# سجل التغييرات — الجزائر خضراء 🌿
 
-All notable changes are documented here.
-Format follows [Keep a Changelog](https://keepachangelog.com/).
-
+جميع التغييرات الجوهرية موثقة هنا.
 ---
 
 ## [v3.7] — 2026-03-16
 
-### Added
-- **Tutorial System (نظام التعليمات)**: glassmorphism olive-green card shown once per screen
-  - 5 screens covered: Home, Map, Campaigns, Leaderboard, Profile
-  - Custom Arabic/English messages per screen
-  - Dismissed by "حسناً، فهمت!" button or outside tap
-  - Old users: no tutorial shown (SharedPreferences-based)
-- `TutorialService` — SharedPreferences service (`shouldShow` + `markSeen`)
-- `TutorialOverlay` widget — fade animation, RTL-aware, outside-tap dismiss
-- 16 new translation keys for tutorial content in `ar.json` + `en.json`
+### ✨ مضاف
+- **نظام التعليمات (Tutorial System)**: بطاقة glassmorphism بلون زيتي تظهر مرة واحدة في كل صفحة
+  - 5 صفحات مغطاة: الرئيسية، الخريطة، الحملات، الترتيب، الحساب
+  - رسائل عربية/إنجليزية مخصصة لكل صفحة
+  - يُغلق بـ "حسناً، فهمت!" أو الضغط خارج البطاقة
+  - المستخدمون القدامى: لا يرون التعليمات (SharedPreferences)
+- `TutorialService` — خدمة SharedPreferences (`shouldShow` + `markSeen`)
+- `TutorialOverlay` — ودجت بتأثير Fade، داعم RTL، يُغلق بالضغط الخارجي
+- 16 مفتاح ترجمة جديد لمحتوى التعليمات في `ar.json` + `en.json`
 
-### Fixed
-- Campaign counter in Profile: now fetches live from `campaign_participants` table (was reading stale field)
-- Missing translation keys: `ends_in` and `starts_in` added to AR/EN
+### 🐛 إصلاح
+- عداد الحملات في صفحة الحساب: يُحدَّث الآن مباشرة من جدول `campaign_participants`
+- مفاتيح ترجمة مفقودة: إضافة `ends_in` و `starts_in` في AR/EN
 
-### Changed
-- Initiative owner name updated to **فؤاد معلى (Fouad Mo'alla)** across all files
+### 🔄 تعديل
+- تحديث اسم صاحب المبادرة إلى **فؤاد معلى (Fouad Mo'alla)** في جميع الملفات
 
 ---
 
 ## [v3.6.5] — 2026-03-15
 
-### Fixed
-- Tree popup: planter name now fetched from `users` table (was always "مجهول")
-- Tree popup: planting date now reads `planted_at` field (was always "غير معروف")
-- Tree popup: share button now works via `share_plus` with clipboard fallback
-- Tree popup: removed hardcoded 65% growth status section
+### 🐛 إصلاح
+- نافذة الشجرة: اسم المزارع يُجلب الآن من جدول `users` (كان يظهر دائماً "مجهول")
+- نافذة الشجرة: تاريخ الغرس يقرأ حقل `planted_at` (كان دائماً "غير معروف")
+- نافذة الشجرة: زر المشاركة يعمل الآن عبر `share_plus` مع حفظ احتياطي للحافظة
+- نافذة الشجرة: إزالة قسم حالة النمو 65% المُضمَّن بشكل ثابت
 
-### Removed
-- Tree popup: heart/favorite button removed from action row
+### 🗑️ محذوف
+- نافذة الشجرة: إزالة زر القلب/المفضلة من صف الإجراءات
 
-### Changed (Stitch MCP Redesigns)
-- Countdown timer: 3 frosted glass boxes on olive-green gradient card
-- Province rankings: gold/silver/bronze light-toned cards with circular badges
-- Notification history: 2 pill tabs (وطني / ولائي) with unread badges
+### 🎨 تعديل (إعادة تصميم Stitch MCP)
+- مؤقت العد التنازلي: 3 صناديق زجاجية على بطاقة بتدرج زيتي
+- ترتيب الولايات: بطاقات ذهبية/فضية/برونزية فاتحة مع شارات دائرية
+- سجل الإشعارات: تبويبان (وطني / ولائي) مع شارات غير مقروء
 
-### Added
-- 6 new translation keys: `national_tab`, `provincial_tab`, `no_national_notifications`, `no_provincial_notifications`, `copied_to_clipboard`, `share_tree`
+### ✨ مضاف
+- 6 مفاتيح ترجمة جديدة: `national_tab`, `provincial_tab`, `no_national_notifications`, `no_provincial_notifications`, `copied_to_clipboard`, `share_tree`
 
 ---
 
 ## [v3.6] — 2026-03-14
 
-### Fixed
-- Map tree popup: was always showing `'blida'` — now shows real GPS coordinates
-- Map popup layout: overflow fixed, species info enriched from `_speciesMap`
-- WhatsApp link: replaced with "Coming Soon" dialog (no broken external link)
+### 🐛 إصلاح
+- نافذة شجرة الخريطة: كانت تعرض دائماً `'blida'` — تعرض الآن إحداثيات GPS الحقيقية
+- تخطيط نافذة الخريطة: إصلاح التجاوز، إثراء معلومات الأنواع من `_speciesMap`
+- رابط واتساب: استبداله بنافذة "قريباً" (إزالة الرابط المكسور)
 
-### Added
-- Map: "Hide All" filter chip (`none`) hides both trees and campaign polygons
-- Map: `MapScreen` accepts `initialLat/initialLng` via `GoRouterState.extra`
-- Profile: tree cards now navigate to map location on tap
-- `POST_NOTIFICATIONS` permission for Android 13+
-- 3 new avatar assets + 3 new campaign cover assets (total: 8 each)
-- Campaign organizer name resolved from UUID via Supabase join
+### ✨ مضاف
+- الخريطة: شريحة فلتر "إخفاء الكل" (`none`) تخفي الأشجار ومناطق الحملات
+- الخريطة: `MapScreen` يقبل `initialLat/initialLng` عبر `GoRouterState.extra`
+- الحساب: بطاقات الأشجار تنتقل الآن لموقع الخريطة عند الضغط
+- صلاحية `POST_NOTIFICATIONS` لـ Android 13+
+- 3 صور أفاتار جديدة + 3 أغلفة حملات جديدة (الإجمالي: 8 لكل منهما)
+- اسم منظم الحملة يُحلَّل من UUID عبر جلب Supabase
 
-### Removed
-- Map: "Add Tree" FAB removed; location FAB now works correctly
+### 🗑️ محذوف
+- الخريطة: إزالة زر "إضافة شجرة" العائم؛ زر الموقع يعمل بشكل صحيح الآن
 
 ---
 
 ## [v3.5] — 2026-03-13
 
-### Added
-- Past Campaigns screen (صفحة الحملات السابقة) — tabbed list + detail screen
-- Province dropdown in Create Campaign sheet for admin/developer roles
-- Memorial message in About screen
+### ✨ مضاف
+- شاشة الحملات السابقة — قائمة بتبويبات + شاشة تفاصيل
+- قائمة منسدلة للولايات في صفحة إنشاء الحملة (للمدراء والمطورين)
+- رسالة تذكارية في شاشة "حول التطبيق"
 
-### Fixed
-- Countdown timer units now use `.tr()` (Arabic: ساعة / دقيقة)
-- Campaign card is now fully tappable → `/campaign-details`
-- Provincial notifications scoped correctly to wilaya FCM topic
+### 🐛 إصلاح
+- وحدات مؤقت العد التنازلي تستخدم الآن `.tr()` (عربي: ساعة / دقيقة)
+- بطاقة الحملة قابلة للنقر بالكامل الآن ← `/campaign-details`
+- الإشعارات الولائية مقيّدة بشكل صحيح لموضوع FCM الخاص بالولاية
 
-### Removed
-- Floating `+` FAB removed from Campaigns screen
+### 🗑️ محذوف
+- إزالة زر "+" العائم من شاشة الحملات
 
 ---
 
 ## [v3.4.1] — 2026-03-12
 
-### Fixed
-- Campaigns not displaying: explicit `.inFilter('status', ['active', 'upcoming'])` added
-- Tree marker visibility: removed zone-based marker hiding logic
-- Connectivity false negative: RPC failure no longer triggers offline save
-- Upgrade requests not visible in dashboard: bypassed RLS join restriction
-- Notifications not reaching users: fixed iOS foreground + FCM token refresh
-- Instagram link correction: `sam22ir` → `sam__22__ir`
+### 🐛 إصلاح
+- الحملات لا تظهر: إضافة `.inFilter('status', ['active', 'upcoming'])` صريح
+- ظهور علامات الأشجار: إزالة منطق إخفاء العلامات المبني على المناطق
+- تحقق الاتصال السلبي الكاذب: فشل RPC لا يُشغّل الحفظ دون اتصال بعد الآن
+- طلبات الترقية غير مرئية في لوحة التحكم: تجاوز قيود RLS JOIN
+- الإشعارات لا تصل للمستخدمين: إصلاح iOS foreground + تحديث رمز FCM
+- تصحيح رابط Instagram: `sam22ir` ← `sam__22__ir`
 
-### Added
-- `fcm_token` column added to `users` table in Supabase
+### ✨ مضاف
+- إضافة عمود `fcm_token` لجدول `users` في Supabase
 
 ---
 
 ## [v3.4] — 2026-03-11
 
-### Added
-- Province Detail Screen (accessible from Leaderboard province cards)
-- Public Profile Screen (accessible from Leaderboard user rows)
-- Notification History Screen with unread badge
-- Notification Bell in Profile AppBar with unread count badge
-- Official social media links in About screen (Facebook, Instagram, X, TikTok, YouTube)
+### ✨ مضاف
+- شاشة تفاصيل الولاية (متاحة من بطاقات الولايات في الترتيب)
+- شاشة الملف الشخصي العام (متاحة من صفوف المستخدمين في الترتيب)
+- شاشة سجل الإشعارات مع شارة الغير مقروء
+- جرس الإشعارات في AppBar الحساب مع عداد الغير مقروء
+- روابط وسائل التواصل الاجتماعية الرسمية في شاشة "حول التطبيق" (Facebook, Instagram, X, TikTok, YouTube)
 
 ---
 
 ## [v3.3] — 2026-03-10
 
-### Added
-- Official logo integration with Hero animations across 6 core screens
-- Ray Casting algorithm for campaign zone click detection (point-in-polygon)
-- ChoiceChip-based map filters replacing legacy buttons
+### ✨ مضاف
+- تكامل الشعار الرسمي مع رسوم Hero عبر 6 شاشات رئيسية
+- خوارزمية Ray Casting للكشف عن نقرات مناطق الحملة (نقطة داخل مضلع)
+- فلاتر الخريطة المبنية على ChoiceChip بديلاً عن الأزرار القديمة
 
-### Fixed
-- Glassmorphism crashes: replaced `BackdropFilter` with solid semi-transparent containers
+### 🐛 إصلاح
+- عطل Glassmorphism: استبدال `BackdropFilter` بحاويات شبه شفافة صلبة
 
 ---
 
 ## [v3.2] — 2026-03-09
 
-### Changed
-- Global `BouncingScrollPhysics` applied to all scrollable widgets
-- Arabic plural rules verified (`tree_count_few/many/two`)
+### 🔄 تعديل
+- تطبيق `BouncingScrollPhysics` عالمياً على جميع العناصر القابلة للتمرير
+- التحقق من قواعد الجمع العربي (`tree_count_few/many/two`)
 
 ---
 
 ## [v3.0] — 2026-03-07
 
-### Added
-- Premium Leaderboard & Profile redesign via Stitch MCP
-- Campaign termination logic (`ended_at`, `ended_by`, `end_reason`)
-- Brave Browser as primary testing target (`flutter run -d chrome`)
+### ✨ مضاف
+- إعادة تصميم فاخرة للترتيب والحساب عبر Stitch MCP
+- منطق إنهاء الحملات (`ended_at`, `ended_by`, `end_reason`)
+- Brave Browser كهدف اختبار رئيسي (`flutter run -d chrome`)
 
 ---
 
 ## [v2.1] — 2026-03-01
 
-### Added
-- Admin Dashboard (7 sections, role-adaptive)
-- Full i18n system using `easy_localization` (AR + EN)
-- Offline Mode with SQLite queue + auto-sync engine
-- 4 granular FCM notification topics per user
+### ✨ مضاف
+- لوحة التحكم الإدارية (7 أقسام، متكيفة مع الأدوار)
+- نظام i18n كامل باستخدام `easy_localization` (AR + EN)
+- وضع العمل دون اتصال مع صف SQLite + محرك مزامنة تلقائي
+- 4 موضوعات FCM دقيقة لكل مستخدم
 
 ---
 
 ## [v1.0] — 2026-02-15
 
-### Added
-- Initial release: Auth, Map, Campaigns, Leaderboard, Profile, Settings
-- 69 Wilayas support
-- Supabase backend with RLS on all tables
-- Firebase Auth + FCM integration
+### ✨ مضاف
+- الإصدار الأولي: المصادقة، الخريطة، الحملات، الترتيب، الحساب، الإعدادات
+- دعم 69 ولاية جزائرية
+- خلفية Supabase مع RLS على جميع الجداول
+- تكامل Firebase Auth + FCM
