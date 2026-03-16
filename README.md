@@ -107,11 +107,11 @@ All data lives in **Supabase** with **Row Level Security (RLS)** enabled on ever
 ## 👥 Role Hierarchy
 
 ```
-🔧 Developer (Saadi Samir)       → Full system access
-🌟 Initiative Owner (Akhi Fouad) → National campaigns + notifications
-🏛️ Provincial Organizer          → Province-level campaigns
-📍 Local Organizer               → Local / semi-individual campaigns
-🌱 Volunteer (default)           → Plant trees + join campaigns
+🔧 Developer (Saadi Samir)                → Full system access
+🌟 Initiative Owner (Mo'alla Akhi Fouad)  → National campaigns + notifications
+🏛️ Provincial Organizer                   → Province-level campaigns
+📍 Local Organizer                        → Local / semi-individual campaigns
+🌱 Volunteer (default)                    → Plant trees + join campaigns
 ```
 
 > ⚠️ Privileged roles are assigned **manually** via Supabase Dashboard only — never via the app.
@@ -151,7 +151,7 @@ This project is **proprietary software**. See [LICENSE](./LICENSE) for full term
       <a href="https://github.com/sam22ir">@sam22ir</a> · <a href="https://instagram.com/sam__22__ir">Instagram</a>
     </td>
     <td align="center">
-      <b>Akhi Fouad</b><br/>
+      <b>Mo'alla Akhi Fouad</b><br/>
       Initiative Owner<br/>
       <i>MabadaMedia</i>
     </td>
