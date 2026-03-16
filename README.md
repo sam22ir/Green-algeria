@@ -9,150 +9,152 @@
 
 **تطبيق جزائري لإعادة التشجير وتتبع الأشجار بشكل جماعي**
 
-*Together we build a greener Algeria — معاً نصنع الفرق*
+*معاً نصنع الفرق*
 
-[![Version](https://img.shields.io/badge/Version-v3.6.5-606C38?style=flat-square)](https://github.com/sam22ir/Green-algeria)
-[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-5A7233?style=flat-square)](https://github.com/sam22ir/Green-algeria)
-[![Language](https://img.shields.io/badge/Language-Arabic%20%7C%20English-2D2D2D?style=flat-square)](https://github.com/sam22ir/Green-algeria)
+[![Version](https://img.shields.io/badge/الإصدار-v3.7-606C38?style=flat-square)](https://github.com/sam22ir/Green-algeria/releases/tag/v3.7)
+[![Platform](https://img.shields.io/badge/المنصة-Android%20%7C%20iOS%20%7C%20Web-5A7233?style=flat-square)](https://github.com/sam22ir/Green-algeria)
+[![Language](https://img.shields.io/badge/اللغة-عربي%20%7C%20English-2D2D2D?style=flat-square)](https://github.com/sam22ir/Green-algeria)
 
 </div>
 
 ---
 
-## 📖 About the Project
+## 📖 عن المشروع
 
-**Green Algeria** is a national environmental initiative built as a Flutter application to empower Algerian volunteers to document tree planting, join national and provincial campaigns, and collectively track Algeria's reforestation progress.
+**الجزائر خضراء** مبادرة وطنية بيئية مبنية كتطبيق Flutter يمكّن المتطوعين الجزائريين من توثيق غرس الأشجار، والانضمام للحملات الوطنية والولائية والمحلية، ومتابعة تقدم إعادة التشجير في الجزائر.
 
-The app covers all **69 Algerian Wilayas**, supports full **Arabic (RTL)** and English localization, and works **offline** — no internet connection required to plant a tree.
-
----
-
-## ✨ Key Features
-
-| Feature | Description |
-|---------|-------------|
-| 🗺️ **Interactive Map** | Plant trees directly on an OpenStreetMap-powered map of Algeria |
-| 🌳 **Tree Documentation** | Record species, location, and date of every planting |
-| 📣 **Campaign System** | Join national, provincial, and local reforestation campaigns |
-| 🏆 **Leaderboard** | Compete with volunteers across all 69 wilayas |
-| 🔔 **Push Notifications** | Real-time FCM alerts for campaigns and national events |
-| 📶 **Offline Mode** | Queue plantings locally — auto-syncs when back online |
-| 🌙 **Dark Mode** | Full handcrafted dark theme (never auto-inverted) |
-| 🌐 **Bilingual** | Arabic (RTL) + English (LTR) with easy_localization |
-| 👥 **Role System** | Volunteer → Local Organizer → Provincial Organizer → Initiative Owner → Developer |
-| 🛡️ **Admin Dashboard** | Role-adaptive dashboard for managing campaigns, users, and notifications |
+يغطي التطبيق جميع **69 ولاية جزائرية**، يدعم اللغة **العربية (RTL)** والإنجليزية بالكامل، ويعمل **دون اتصال بالإنترنت**.
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ المميزات الرئيسية
+
+| الميزة | الوصف |
+|--------|-------|
+| 🗺️ **خريطة تفاعلية** | اغرس الأشجار مباشرة على خريطة الجزائر مدعومة بـ OpenStreetMap |
+| 🌳 **توثيق الأشجار** | سجّل النوع والموقع والتاريخ لكل غرسة |
+| 📣 **نظام الحملات** | انضم لحملات وطنية وولائية ومحلية |
+| 🏆 **الترتيب** | تنافس مع المتطوعين عبر 69 ولاية |
+| 🔔 **إشعارات فورية** | تنبيهات FCM للحملات والأحداث الوطنية |
+| 📶 **وضع بلا إنترنت** | حفظ الغرسات محلياً — مزامنة تلقائية عند العودة |
+| 🌙 **الوضع الداكن** | ثيم داكن يدوي الصنع بالكامل |
+| 🌐 **ثنائي اللغة** | عربي (RTL) + إنجليزي (LTR) |
+| 👥 **نظام الأدوار** | متطوع ← منظم محلي ← منظم ولائي ← صاحب المبادرة ← المطور |
+| 🛡️ **لوحة التحكم** | لوحة تحكم إدارية متكيفة مع الأدوار |
+| 📚 **نظام التعليمات** | بطاقة تعليمية تظهر مرة واحدة لكل مستخدم جديد في كل صفحة |
+
+---
+
+## 🛠️ التقنيات المستخدمة
 
 ```
-Flutter (Stable)          → Cross-platform mobile & web framework
-Supabase                  → PostgreSQL database + RLS + Realtime + Auth
-Firebase (Auth + FCM)     → Google Sign-In + Push Notifications
-flutter_map               → OpenStreetMap-based interactive maps
-sqflite                   → Local SQLite for offline queue
-easy_localization         → AR/EN translation system
-GoRouter                  → Declarative navigation
-```
-
----
-
-## 🎨 Design System
-
-The app uses a custom **Soft Organic Palette** — all colors are handcrafted design tokens:
-
-| Token | Color | Usage |
-|-------|-------|-------|
-| `olive-grove` | `#606C38` | Primary buttons, active nav |
-| `moss-forest` | `#5A7233` | Borders, deep elements |
-| `linen-white` | `#FBFBF7` | App background |
-| `slate-charcoal` | `#2D2D2D` | Headings |
-| `olive-grey` | `#6B705C` | Secondary text |
-
-All UI designs are created exclusively in **Google Stitch MCP** for design system consistency.
-
----
-
-## 📱 App Screens
-
-```
-🔐 Auth          → Sign In · Sign Up (with Wilaya) · Forgot Password · Reset Password
-🏠 Home          → Campaign Countdown · Live Tree Counter · Campaign Feed
-🗺️ Map           → All tree pins · Campaign zones · GPS location
-📣 Campaigns     → National · Provincial · Local Initiatives · Past Campaigns
-🏆 Leaderboard   → Individual rankings · Province rankings · Public profiles
-👤 Profile       → Stats · Planting history · Settings · Admin Dashboard
+Flutter (Stable)          → إطار عمل متعدد المنصات
+Supabase                  → قاعدة بيانات PostgreSQL + RLS + Realtime
+Firebase (Auth + FCM)     → تسجيل الدخول بجوجل + الإشعارات
+flutter_map               → خرائط OpenStreetMap
+sqflite                   → SQLite محلي للوضع غير المتصل
+easy_localization         → نظام الترجمة AR/EN
+GoRouter                  → التنقل بين الشاشات
 ```
 
 ---
 
-## 🗄️ Database Schema
+## 🎨 نظام التصميم
 
-All data lives in **Supabase** with **Row Level Security (RLS)** enabled on every table.
+يستخدم التطبيق **لوحة ألوان طبيعية ناعمة** — جميع الألوان رموز تصميم يدوية:
 
-| Table | Purpose |
-|-------|---------|
-| `users` | Profiles, roles, provinces, FCM tokens |
-| `planted_trees` | Every documented tree (GPS + species + planter) |
-| `campaigns` | National / Provincial / Local campaigns |
-| `tree_species` | 30+ species database (AR + EN + scientific) |
-| `leaderboard_cache` | DB-trigger-refreshed rankings |
-| `notifications` | Admin-sent push notifications |
-| `upgrade_requests` | Volunteer → Organizer promotion requests |
-| `bug_reports` | In-app problem reporting |
+| الرمز | اللون | الاستخدام |
+|-------|-------|-----------|
+| `olive-grove` | `#606C38` | الأزرار الرئيسية، التنقل النشط |
+| `moss-forest` | `#5A7233` | الحدود، العناصر العميقة |
+| `linen-white` | `#FBFBF7` | خلفية التطبيق |
+| `slate-charcoal` | `#2D2D2D` | العناوين |
+| `olive-grey` | `#6B705C` | النص الثانوي |
+
+جميع تصاميم الواجهة تُنشأ حصرياً في **Google Stitch MCP**.
 
 ---
 
-## 👥 Role Hierarchy
+## 📱 شاشات التطبيق
 
 ```
-🔧 Developer (Saadi Samir)          → Full system access
-🌟 Initiative Owner (Fouad Mo'alla) → National campaigns + notifications
-🏛️ Provincial Organizer             → Province-level campaigns
-📍 Local Organizer                  → Local / semi-individual campaigns
-🌱 Volunteer (default)              → Plant trees + join campaigns
+🔐 المصادقة     → تسجيل الدخول · إنشاء حساب (مع الولاية) · نسيت كلمة المرور
+🏠 الرئيسية    → عداد الأشجار الحي · العد التنازلي للحملة · آخر الحملات
+🗺️ الخريطة     → جميع الدبابيس · مناطق الحملات · موقع GPS
+📣 الحملات     → وطنية · ولائية · محلية · الحملات السابقة
+🏆 الترتيب     → الأفراد · الولايات · الملفات العامة
+👤 الحساب      → الإحصائيات · تاريخ الغرس · الإعدادات · لوحة التحكم
 ```
 
-> ⚠️ Privileged roles are assigned **manually** via Supabase Dashboard only — never via the app.
+---
+
+## 🗄️ هيكل قاعدة البيانات
+
+جميع البيانات في **Supabase** مع تفعيل **Row Level Security (RLS)** على كل الجداول.
+
+| الجدول | الغرض |
+|--------|-------|
+| `users` | الملفات الشخصية، الأدوار، الولايات، رموز FCM |
+| `planted_trees` | كل شجرة موثقة (GPS + نوع + مزارع) |
+| `campaigns` | الحملات الوطنية / الولائية / المحلية |
+| `tree_species` | قاعدة بيانات +30 نوع (عربي + إنجليزي + علمي) |
+| `leaderboard_cache` | ترتيبات محدّثة بمشغلات قاعدة البيانات |
+| `notifications` | الإشعارات الإدارية |
+| `upgrade_requests` | طلبات الترقية من متطوع إلى منظم |
+| `bug_reports` | الإبلاغ عن المشكلات من داخل التطبيق |
 
 ---
 
-## 🚀 Version History
+## 👥 هرمية الأدوار
 
-| Version | Highlights |
-|---------|-----------|
-| v3.6.5 | Tree popup fixes · Stitch MCP redesigns · Notification tabs |
-| v3.6 | Map fixes · Background notifications · Profile→Map navigation |
-| v3.5 | Past campaigns screen · Arabic countdown units |
-| v3.4 | Public profiles · Province detail · Notification history |
-| v3.3 | Logo integration · Map zone interaction · ChoiceChip filters |
-| v3.0 | Premium leaderboard redesign · Campaign termination |
-| v2.1 | Admin dashboard · i18n system · Offline mode |
+```
+🔧 المطور (سعدي سمير)               ← صلاحية كاملة للنظام
+🌟 صاحب المبادرة (فؤاد معلى)         ← حملات وطنية + إشعارات
+🏛️ المنظم الولائي                   ← حملات على مستوى الولاية
+📍 المنظم المحلي                    ← حملات محلية / شبه فردية
+🌱 المتطوع (افتراضي)                ← غرس الأشجار + الانضمام للحملات
+```
 
----
-
-## 🔐 License & Intellectual Property
-
-This project is **proprietary software**. See [LICENSE](./LICENSE) for full terms.
-
-> **All rights reserved © 2026 Saadi Samir.**
-> Redistribution, modification, or republication under a different name is strictly prohibited.
+> ⚠️ الأدوار المتميزة تُعيَّن **يدوياً** عبر لوحة Supabase فقط — وليس من التطبيق.
 
 ---
 
-## 👨‍💻 Credits
+## 🚀 سجل الإصدارات
+
+| الإصدار | أبرز التغييرات |
+|---------|---------------|
+| **v3.7** 🆕 | نظام التعليمات للمستخدمين الجدد · إصلاح عداد الحملات · تصحيح الاسم |
+| v3.6.5 | إصلاح نافذة الشجرة · إعادة تصميم Stitch · تبويبات الإشعارات |
+| v3.6 | إصلاح الخريطة · الإشعارات في الخلفية · تنقل الملف الشخصي←الخريطة |
+| v3.5 | شاشة الحملات السابقة · وحدات العد التنازلي بالعربية |
+| v3.4 | الملفات العامة · تفاصيل الولاية · سجل الإشعارات |
+| v3.3 | تكامل الشعار · تفاعل مناطق الخريطة · فلاتر ChoiceChip |
+| v3.0 | إعادة تصميم لوحة الترتيب · إنهاء الحملات |
+| v2.1 | لوحة التحكم الإدارية · نظام الترجمة · الوضع دون إنترنت |
+
+---
+
+## 🔐 الترخيص والملكية الفكرية
+
+هذا المشروع **برمجيات خاصة**. راجع [LICENSE](./LICENSE) للشروط الكاملة.
+
+> **جميع الحقوق محفوظة © 2026 سعدي سمير.**
+> يُحظر إعادة التوزيع أو التعديل أو إعادة النشر باسم مختلف.
+
+---
+
+## 👨‍💻 الفريق
 
 <table>
   <tr>
     <td align="center">
-      <b>Saadi Samir</b><br/>
-      Developer & Architect<br/>
+      <b>سعدي سمير</b><br/>
+      المطور والمهندس المعماري<br/>
       <a href="https://github.com/sam22ir">@sam22ir</a> · <a href="https://instagram.com/sam__22__ir">Instagram</a>
     </td>
     <td align="center">
-      <b>Fouad Mo'alla</b><br/>
-      Initiative Owner<br/>
+      <b>فؤاد معلى</b><br/>
+      صاحب المبادرة<br/>
       <i>MabadaMedia</i>
     </td>
   </tr>
@@ -162,7 +164,7 @@ This project is **proprietary software**. See [LICENSE](./LICENSE) for full term
 
 <div align="center">
 
-*🌿 Green Algeria — الجزائر خضراء*
-*Built with ❤️ using Google Antigravity IDE · Stitch MCP · Supabase MCP · Firebase MCP*
+*🌿 الجزائر خضراء — Green Algeria*
+*بُني بـ ❤️ باستخدام Google Antigravity IDE · Stitch MCP · Supabase MCP · Firebase MCP*
 
 </div>
