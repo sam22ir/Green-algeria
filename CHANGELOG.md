@@ -5,6 +5,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
+## [v3.7] — 2026-03-16
+
+### Added
+- **Tutorial System (نظام التعليمات)**: glassmorphism olive-green card shown once per screen
+  - 5 screens covered: Home, Map, Campaigns, Leaderboard, Profile
+  - Custom Arabic/English messages per screen
+  - Dismissed by "حسناً، فهمت!" button or outside tap
+  - Old users: no tutorial shown (SharedPreferences-based)
+- `TutorialService` — SharedPreferences service (`shouldShow` + `markSeen`)
+- `TutorialOverlay` widget — fade animation, RTL-aware, outside-tap dismiss
+- 16 new translation keys for tutorial content in `ar.json` + `en.json`
+
+### Fixed
+- Campaign counter in Profile: now fetches live from `campaign_participants` table (was reading stale field)
+- Missing translation keys: `ends_in` and `starts_in` added to AR/EN
+
+### Changed
+- Initiative owner name updated to **فؤاد معلى (Fouad Mo'alla)** across all files
+
+---
+
 ## [v3.6.5] — 2026-03-15
 
 ### Fixed
