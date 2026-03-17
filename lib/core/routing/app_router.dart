@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 // Placeholder screens for routing setup
-import '../theme/app_colors.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/campaigns/presentation/campaigns_screen.dart';
@@ -11,47 +10,127 @@ import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/role_request_screen.dart';
-import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/province_selection_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
+import '../../features/auth/presentation/forgot_password_screen.dart';
+import '../../features/auth/presentation/reset_password_screen.dart';
+import '../../features/settings/report_problem_screen.dart';
+import '../../features/settings/technical_support_screen.dart';
+import '../../features/settings/about_screen.dart';
+import '../../features/dashboard/presentation/dashboard_screen.dart';
+import '../../features/campaigns/presentation/past_campaigns_screen.dart';
 import '../../services/auth_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class AppRouter {
+  static Page _fadeRoute(Widget child, GoRouterState state) {
+    return CustomTransitionPage(
+      key: state.pageKey,
+      child: child,
+      transitionDuration: const Duration(milliseconds: 200),
+      reverseTransitionDuration: const Duration(milliseconds: 200),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+    );
+  }
+
   static final GoRouter router = GoRouter(
     initialLocation: '/splash',
+    refreshListenable: AuthService(),
     redirect: (context, state) {
       final authService = AuthService();
       final isAuth = authService.firebaseUser != null;
-      final isLoginRoute = state.uri.toString() == '/login' || state.uri.toString() == '/register';
-      final isSplashRoute = state.uri.toString() == '/splash';
+      final path = state.uri.toString();
+      final isLoginRoute = path == '/login' || path == '/register';
+      final isSplashRoute = path == '/splash';
+      final isProvinceRoute = path == '/select-province';
+      // ✅ إصلاح: هذه الشاشات عامة ولا تحتاج مصادقة
+      final isPublicRoute = isLoginRoute
+          || isSplashRoute
+          || path == '/forgot-password'
+          || path.startsWith('/reset-password');
 
-      if (isSplashRoute) return null; // Let splash screen handle the logic
-      if (!isAuth && !isLoginRoute) return '/login';
-      if (isAuth && isLoginRoute) return '/';
+      if (isSplashRoute) return null;
+
+      // غير مسجّل + مسار محمي → /login
+      if (!isAuth && !isPublicRoute) {
+        return '/login';
+      }
+
+      if (isAuth) {
+        if (authService.isLoading) return null;
+
+        // لا ولاية → /select-province (لكن لا نُعيد توجيه forgot/reset)
+        if (!authService.hasProvince && !isProvinceRoute && !isPublicRoute) {
+          return '/select-province';
+        }
+
+        // مسجّل + له ولاية + على شاشة login/register/province → /
+        if (authService.hasProvince && (isLoginRoute || isProvinceRoute)) {
+          return '/';
+        }
+      }
 
       return null;
     },
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const SplashScreen(),
+        pageBuilder: (context, state) => _fadeRoute(const SplashScreen(), state),
       ),
       GoRoute(
         path: '/login',
-        builder: (context, state) => const LoginScreen(),
+        pageBuilder: (context, state) => _fadeRoute(const SignInScreen(), state),
       ),
       GoRoute(
         path: '/register',
-        builder: (context, state) => const RegisterScreen(),
+        pageBuilder: (context, state) => _fadeRoute(const RegisterScreen(), state),
+      ),
+      GoRoute(
+        path: '/select-province',
+        pageBuilder: (context, state) => _fadeRoute(const ProvinceSelectionScreen(), state),
       ),
       GoRoute(
         path: '/settings',
-        builder: (context, state) => const SettingsScreen(),
+        pageBuilder: (context, state) => _fadeRoute(const SettingsScreen(), state),
       ),
       GoRoute(
         path: '/role-request',
-        builder: (context, state) => const RoleRequestScreen(),
+        pageBuilder: (context, state) => _fadeRoute(const RoleRequestScreen(), state),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        pageBuilder: (context, state) => _fadeRoute(const ForgotPasswordScreen(), state),
+      ),
+      GoRoute(
+        path: '/reset-password',
+        pageBuilder: (context, state) => _fadeRoute(const ResetPasswordScreen(), state),
+      ),
+      GoRoute(
+        path: '/report-problem',
+        pageBuilder: (context, state) => _fadeRoute(const ReportProblemScreen(), state),
+      ),
+      GoRoute(
+        path: '/technical-support',
+        pageBuilder: (context, state) => _fadeRoute(const TechnicalSupportScreen(), state),
+      ),
+      GoRoute(
+        path: '/dashboard',
+        pageBuilder: (context, state) => _fadeRoute(const DashboardScreen(), state),
+      ),
+      GoRoute(
+        path: '/about',
+        pageBuilder: (context, state) => _fadeRoute(const AboutScreen(), state),
+      ),
+      GoRoute(
+        path: '/past-campaigns',
+        pageBuilder: (context, state) => _fadeRoute(const PastCampaignsScreen(), state),
       ),
       ShellRoute(
         builder: (context, state, child) {
@@ -60,32 +139,32 @@ class AppRouter {
         routes: [
           GoRoute(
             path: '/',
-            builder: (context, state) => const HomeScreen(),
+            pageBuilder: (context, state) => _fadeRoute(const HomeScreen(), state),
           ),
           GoRoute(
             path: '/map',
-            builder: (context, state) => const MapScreen(),
+            pageBuilder: (context, state) => _fadeRoute(const MapScreen(), state),
           ),
           GoRoute(
             path: '/campaigns',
-            builder: (context, state) => const CampaignsScreen(),
+            pageBuilder: (context, state) => _fadeRoute(const CampaignsScreen(), state),
             routes: [
               GoRoute(
                 path: 'details',
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final campaign = state.extra as CampaignModel;
-                  return CampaignDetailsScreen(campaign: campaign);
+                  return _fadeRoute(CampaignDetailsScreen(campaign: campaign), state);
                 },
               ),
             ],
           ),
           GoRoute(
             path: '/leaderboard',
-            builder: (context, state) => const LeaderboardScreen(),
+            pageBuilder: (context, state) => _fadeRoute(const LeaderboardScreen(), state),
           ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) => const ProfileScreen(),
+            pageBuilder: (context, state) => _fadeRoute(const ProfileScreen(), state),
           ),
         ],
       ),
@@ -96,19 +175,22 @@ class AppRouter {
 class AppShell extends StatelessWidget {
   final Widget child;
 
-  const AppShell({Key? key, required this.child}) : super(key: key);
+  const AppShell({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: AppColors.linenWhite,
+          color: colorScheme.surface,
+          border: Border(top: BorderSide(color: colorScheme.outline.withValues(alpha: 0.1))),
           boxShadow: [
             BoxShadow(
-              color: AppColors.mossForest.withOpacity(0.06),
+              color: colorScheme.primary.withValues(alpha: 0.04),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),
@@ -118,18 +200,22 @@ class AppShell extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: AppColors.mossForest,
-          unselectedItemColor: AppColors.oliveGrey.withOpacity(0.6),
+          selectedItemColor: colorScheme.primary,
+          unselectedItemColor: colorScheme.onSurface.withValues(alpha: 0.4),
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
           currentIndex: _calculateSelectedIndex(context),
           onTap: (int idx) => _onItemTapped(idx, context),
           items: [
-            BottomNavigationBarItem(icon: const Icon(Icons.home_rounded), label: l10n.home),
-            BottomNavigationBarItem(icon: const Icon(Icons.map_rounded), label: l10n.map),
-            BottomNavigationBarItem(icon: const Icon(Icons.nature_people_rounded), label: l10n.campaigns),
-            BottomNavigationBarItem(icon: const Icon(Icons.emoji_events_rounded), label: l10n.leaderboard),
-            BottomNavigationBarItem(icon: const Icon(Icons.person_rounded), label: l10n.profile),
+            BottomNavigationBarItem(icon: const Icon(Icons.home_rounded), label: 'home'.tr()),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.explore_outlined),
+              activeIcon: const Icon(Icons.explore),
+              label: 'map'.tr(),
+            ),
+            BottomNavigationBarItem(icon: const Icon(Icons.nature_people_rounded), label: 'campaigns'.tr()),
+            BottomNavigationBarItem(icon: const Icon(Icons.emoji_events_rounded), label: 'leaderboard'.tr()),
+            BottomNavigationBarItem(icon: const Icon(Icons.person_rounded), label: 'profile'.tr()),
           ],
         ),
       ),

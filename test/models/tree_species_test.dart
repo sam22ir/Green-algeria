@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:green_algeria/core/models/tree_species.dart';
+import 'package:green_algeria/models/tree_species.dart';
 
 void main() {
   group('TreeSpecies', () {
@@ -14,11 +14,12 @@ void main() {
         'ecological_zone': 'Mediterranean',
         'metadata': {'drought_resistance': 'high', 'growth_rate': 'moderate'},
         'is_active': true,
+        'image_asset_path': 'assets/images/trees/tree_pine.png',
       };
 
       final species = TreeSpecies.fromJson(json);
 
-      expect(species.id, '1'); // id is stringified
+      expect(species.id, 1);
       expect(species.nameAr, 'صنوبر حلبي');
       expect(species.nameEn, 'Aleppo Pine');
       expect(species.nameScientific, 'Pinus halepensis');
@@ -27,6 +28,7 @@ void main() {
       expect(species.ecologicalZone, 'Mediterranean');
       expect(species.metadata?['drought_resistance'], 'high');
       expect(species.isActive, true);
+      expect(species.imageAssetPath, 'assets/images/trees/tree_pine.png');
     });
 
     test('fromJson handles nullable fields gracefully', () {
@@ -38,18 +40,19 @@ void main() {
 
       final species = TreeSpecies.fromJson(json);
 
-      expect(species.id, '5');
+      expect(species.id, 5);
       expect(species.nameScientific, isNull);
       expect(species.description, isNull);
       expect(species.imageUrl, isNull);
       expect(species.ecologicalZone, isNull);
       expect(species.metadata, isNull);
+      expect(species.imageAssetPath, isNull);
       expect(species.isActive, true); // defaults to true
     });
 
     test('toJson produces correct map', () {
       final species = TreeSpecies(
-        id: '10',
+        id: 10,
         nameAr: 'زيتون',
         nameEn: 'Olive',
         nameScientific: 'Olea europaea',
@@ -58,12 +61,22 @@ void main() {
 
       final json = species.toJson();
 
-      expect(json['id'], '10');
+      expect(json['id'], 10);
       expect(json['name_ar'], 'زيتون');
       expect(json['name_en'], 'Olive');
       expect(json['name_scientific'], 'Olea europaea');
       expect(json['ecological_zone'], 'Mediterranean');
       expect(json['is_active'], true);
+    });
+
+    test('getLocalizedName returns correct language', () {
+      final species = TreeSpecies(
+        id: 1,
+        nameAr: 'صنوبر',
+        nameEn: 'Pine',
+      );
+      expect(species.getLocalizedName('ar'), 'صنوبر');
+      expect(species.getLocalizedName('en'), 'Pine');
     });
 
     test('roundtrip fromJson/toJson preserves data', () {
@@ -77,6 +90,7 @@ void main() {
         'ecological_zone': 'Mountain',
         'metadata': null,
         'is_active': false,
+        'image_asset_path': null,
       };
 
       final species = TreeSpecies.fromJson(original);

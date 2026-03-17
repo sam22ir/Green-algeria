@@ -1,7 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
+import '../core/theme/app_colors.dart';
 
 /// Top-level function to handle background messages
 @pragma('vm:entry-point')
@@ -31,10 +33,17 @@ class NotificationService {
     );
     debugPrint('User granted permission: ${settings.authorizationStatus}');
 
-    // 2. Configure background handler
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    // 2. Background handler is registered in main.dart before runApp() — do not re-register here.
+    // (Re-registering here caused it to silently fail in killed-app scenarios)
 
-    // 3. Configure local notifications for foreground display
+    // 3. v3.4.1 Fix: Ensure notifications appear when app is in foreground on iOS
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    // 4. Configure local notifications for foreground display
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const darwinInit = DarwinInitializationSettings(
       requestAlertPermission: false,
@@ -60,7 +69,7 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    // 4. Foreground message listener
+    // 5. Foreground message listener
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint('Got a message whilst in the foreground!');
       debugPrint('Message data: ${message.data}');
@@ -71,14 +80,49 @@ class NotificationService {
       }
     });
 
+    // 6. Save FCM token to Supabase for direct user targeting
+    await _refreshAndSaveToken();
+
+    // Token refresh listener (token can change)
+    _fcm.onTokenRefresh.listen(_saveTokenToSupabase);
+
     _isInitialized = true;
+  }
+
+  /// Save FCM token to the users table in Supabase
+  Future<void> _refreshAndSaveToken() async {
+    try {
+      final token = await _fcm.getToken();
+      if (token != null) {
+        await _saveTokenToSupabase(token);
+      }
+    } catch (e) {
+      debugPrint('Error refreshing FCM token: $e');
+    }
+  }
+
+  Future<void> _saveTokenToSupabase(String token) async {
+    try {
+      final uid = Supabase.instance.client.auth.currentUser?.id;
+      if (uid == null) return;
+      await Supabase.instance.client
+          .from('users')
+          .update({'fcm_token': token})
+          .eq('id', uid);
+      debugPrint('FCM token saved to Supabase for user $uid');
+    } catch (e) {
+      // Non-critical: if column doesn't exist yet, log and continue
+      debugPrint('Could not save FCM token (column may not exist yet): $e');
+    }
   }
 
   void _showLocalNotification(RemoteMessage message, AndroidNotificationChannel channel) {
     final notification = message.notification;
-    final android = message.notification?.android;
-
-    if (notification != null && android != null) {
+    // v3.4.1 Fix: Removed strict `android != null` check.
+    // Previously, FCM messages without an explicit android block (data-only or iOS)
+    // were silently dropped. Now we show the notification regardless.
+    if (notification != null) {
+      final android = message.notification?.android;
       _localNotifications.show(
         notification.hashCode,
         notification.title,
@@ -88,8 +132,8 @@ class NotificationService {
             channel.id,
             channel.name,
             channelDescription: channel.description,
-            icon: android.smallIcon ?? '@mipmap/ic_launcher',
-            color: const Color(0xFF606C38), // AppColors.oliveGrove
+            icon: android?.smallIcon ?? '@mipmap/ic_launcher',
+            color: AppColors.oliveGrove,
           ),
           iOS: const DarwinNotificationDetails(
             presentAlert: true,
@@ -111,16 +155,54 @@ class NotificationService {
 
   // Topic Management
   Future<void> subscribeToTopic(String topic) async {
-    debugPrint('Subscribing to logic: $topic');
+    debugPrint('Subscribing to topic: $topic');
     await _fcm.subscribeToTopic(topic);
   }
 
   Future<void> unsubscribeFromTopic(String topic) async {
-    debugPrint('Unsubscribing from logic: $topic');
+    debugPrint('Unsubscribing from topic: $topic');
     await _fcm.unsubscribeFromTopic(topic);
   }
 
   Future<String?> getToken() async {
     return await _fcm.getToken();
+  }
+
+  static Future<void> sendToTopic({
+    required String topic,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      await Supabase.instance.client.functions.invoke(
+        'send-fcm',
+        body: {
+          'topic': topic,
+          'title': title,
+          'body': body,
+        },
+      );
+    } catch (e) {
+      debugPrint('Error sending topic notification: $e');
+    }
+  }
+
+  static Future<void> sendToUser({
+    required String userId,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      await Supabase.instance.client.functions.invoke(
+        'send-fcm',
+        body: {
+          'user_id': userId,
+          'title': title,
+          'body': body,
+        },
+      );
+    } catch (e) {
+      debugPrint('Error sending user notification: $e');
+    }
   }
 }

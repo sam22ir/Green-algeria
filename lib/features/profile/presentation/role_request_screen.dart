@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/custom_card.dart';
-import '../../../../core/widgets/custom_text_field.dart';
-import '../../../../core/widgets/custom_buttons.dart';
+import '../../../../widgets/custom_card.dart';
+import '../../../../widgets/custom_text_field.dart';
+import '../../../../widgets/custom_buttons.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../services/supabase_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class RoleRequestScreen extends StatefulWidget {
   const RoleRequestScreen({super.key});
@@ -30,11 +29,14 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
   }
 
   void _submitRequest() async {
+    final colorScheme = Theme.of(context).colorScheme;
     if (_nameController.text.trim().isEmpty || _phoneController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى ملء الحقول الإلزامية (الاسم ورقم الهاتف)'),
-          backgroundColor: Color(0xFFD9534F),
+        SnackBar(
+          content: Text('fill_required_fields'.tr()),
+          backgroundColor: colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
       return;
@@ -49,7 +51,7 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
       final requestedRole = _selectedRoleIndex == 0 ? 'local_organizer' : 'provincial_organizer';
 
       await SupabaseService.client.from('upgrade_requests').insert({
-        'user_id': user.uid,
+        'user_id': user.id,
         'requested_role': requestedRole,
         'status': 'pending',
         'reason': _reasonController.text.trim(),
@@ -58,8 +60,10 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.requestSubmittedSuccess),
-            backgroundColor: AppColors.mossForest,
+            content: Text('request_submitted_success'.tr()),
+            backgroundColor: colorScheme.primary,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
         Navigator.of(context).pop();
@@ -68,8 +72,10 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('حدث خطأ أثناء إرسال الطلب: $e'),
-            backgroundColor: const Color(0xFFD9534F),
+            content: Text('error_submitting_request'.tr(args: [e.toString()])),
+            backgroundColor: colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
       }
@@ -82,40 +88,47 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
-      backgroundColor: AppColors.linenWhite,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.linenWhite,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
         title: Text(
-          l10n.roleRequestTitle,
-          style: const TextStyle(
-            fontSize: 20,
+          'role_request_title'.tr(),
+          style: TextStyle(
+            fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.slateCharcoal,
+            color: colorScheme.onSurface,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.chevron_right, color: AppColors.slateCharcoal, size: 28),
+          icon: Icon(
+            context.locale.languageCode == 'ar' ? Icons.arrow_forward_ios_rounded : Icons.arrow_back_ios_new_rounded,
+            color: colorScheme.onSurface,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildHeader(l10n),
+              _buildHeader(colorScheme),
               const SizedBox(height: 32),
-              _buildRoleSelection(l10n),
+              _buildRoleSelection(colorScheme),
               const SizedBox(height: 32),
-              _buildForm(l10n),
+              _buildForm(colorScheme),
               const SizedBox(height: 48),
               PrimaryButton(
-                text: l10n.submitRequest,
+                text: 'submit_request'.tr(),
                 isLoading: _isSubmitting,
                 onPressed: _submitRequest,
               ),
@@ -126,72 +139,75 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
     );
   }
 
-  Widget _buildHeader(AppLocalizations l10n) {
+  Widget _buildHeader(ColorScheme colorScheme) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.mossForest.withOpacity(0.1),
+            color: colorScheme.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
+          child: Icon(
             Icons.nature_people,
             size: 48,
-            color: AppColors.mossForest,
+            color: colorScheme.primary,
           ),
         ),
         const SizedBox(height: 16),
         Text(
-          l10n.roleRequestTitle,
-          style: const TextStyle(
+          'role_request_title'.tr(),
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: AppColors.slateCharcoal,
+            color: colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          l10n.roleRequestSubtitle,
+          'role_request_subtitle'.tr(),
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: AppColors.oliveGrey,
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildRoleSelection(AppLocalizations l10n) {
+  Widget _buildRoleSelection(ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n.selectRole,
-          style: const TextStyle(
+          'select_role'.tr(),
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppColors.slateCharcoal,
+            color: colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 16),
         _buildRoleCard(
+          colorScheme: colorScheme,
           index: 0,
-          title: l10n.campaignOrganizer,
-          description: l10n.campaignOrganizerDesc,
+          title: 'campaign_organizer'.tr(),
+          description: 'campaign_organizer_desc'.tr(),
         ),
         const SizedBox(height: 12),
         _buildRoleCard(
+          colorScheme: colorScheme,
           index: 1,
-          title: l10n.wilayaCoordinator,
-          description: l10n.wilayaCoordinatorDesc,
+          title: 'wilaya_coordinator'.tr(),
+          description: 'wilaya_coordinator_desc'.tr(),
         ),
       ],
     );
   }
 
   Widget _buildRoleCard({
+    required ColorScheme colorScheme,
     required int index,
     required String title,
     required String description,
@@ -200,11 +216,13 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
     return GestureDetector(
       onTap: () => setState(() => _selectedRoleIndex = index),
       child: CustomCard(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.zero,
+        color: isSelected ? colorScheme.primary.withValues(alpha: 0.05) : colorScheme.surfaceContainerLow,
         child: Container(
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             border: Border.all(
-              color: isSelected ? AppColors.mossForest : Colors.transparent,
+              color: isSelected ? colorScheme.primary : Colors.transparent,
               width: 2,
             ),
             borderRadius: BorderRadius.circular(24),
@@ -214,7 +232,7 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
             children: [
               Icon(
                 isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-                color: isSelected ? AppColors.mossForest : AppColors.ivorySand,
+                color: isSelected ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.3),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -223,18 +241,18 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.slateCharcoal,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.oliveGrey,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -247,36 +265,36 @@ class _RoleRequestScreenState extends State<RoleRequestScreen> {
     );
   }
 
-  Widget _buildForm(AppLocalizations l10n) {
+  Widget _buildForm(ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n.personalInfo,
-          style: const TextStyle(
+          'personal_info'.tr(),
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppColors.slateCharcoal,
+            color: colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 16),
         CustomTextField(
-          label: l10n.fullName,
-          hint: l10n.fullNameHint,
+          label: 'full_name'.tr(),
+          hint: 'full_name_hint'.tr(),
           controller: _nameController,
           prefixIcon: Icons.person_outline,
         ),
         const SizedBox(height: 16),
         CustomTextField(
-          label: l10n.phoneNumber,
-          hint: l10n.phoneNumberHint,
+          label: 'phone_number'.tr(),
+          hint: 'phone_number_hint'.tr(),
           controller: _phoneController,
           prefixIcon: Icons.phone_outlined,
         ),
         const SizedBox(height: 16),
         CustomTextField(
-          label: l10n.requestReason,
-          hint: l10n.requestReasonHint,
+          label: 'request_reason'.tr(),
+          hint: 'request_reason_hint'.tr(),
           controller: _reasonController,
         ),
       ],

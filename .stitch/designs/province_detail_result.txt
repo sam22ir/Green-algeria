@@ -1,0 +1,31 @@
+﻿{
+    "content":  [
+                    {
+                        "text":  "{\"projectId\":\"5105441748622498278\",\"sessionId\":\"9484834391265296880\",\"outputComponents\":[{\"design\":{\"screens\":[{\"screenshot\":{\"name\":\"projects/5105441748622498278/files/5b711125be9b49ca9254a0e9f41750c4\",\"downloadUrl\":\"https://lh3.googleusercontent.com/aida/ADBb0uiUlFEeyvyYwUB05KFivPhgQmEqgQf0TeZoT8tCb3CE0YEm_pquwZWT0Ulh87EBSvTs-pdcW56gaodi0859W_BHuXywTSKzSLhthI1LkyLZmtpoRlW7ABZo2CeuW_ExasubCZWwJb0K1e-4dPR3TKixFbTOygOcs73ZzPsTedp-uVOvzYDasaaoo4M370v88OOIP76zrKfAD3Nr_gCzxv1sXTCmts0RAH_Bag9qPWk8H7LL6RX_wmpZaT8\"},\"htmlCode\":{\"name\":\"projects/5105441748622498278/files/d80ac7d6ba5143f0b848f61a34c493ab\",\"downloadUrl\":\"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2U2ZDU4M2VhODQzODQ5ZDk5YmE3M2NhY2RiMTI1YzA0EgsSBxCKlcvTigQYAZIBIwoKcHJvamVjdF9pZBIVQhM1MTA1NDQxNzQ4NjIyNDk4Mjc4\u0026filename=\u0026opi=96797242\",\"mimeType\":\"text/html\"},\"id\":\"537259ccbf354b0b99973648b3b85e6a\",\"generatedBy\":\"figaro_agent\",\"width\":\"780\",\"height\":\"1816\",\"title\":\"تفاصيل الولاية - الجزائر خضراء\",\"prompt\":\"Title: تفاصيل الولاية - الجزائر خضراء\\nContext: Province detail screen for the Green Algeria reforestation app, displaying statistics, volunteer rankings, and active regional campaigns.\\nDescription of the screen: A data-rich mobile \u0027Province Detail\u0027 screen in a Right-to-Left (RTL) layout.\\n- SliverAppBar (220px): Features a lush green gradient from Forest Canopy (#3A5A1E) to Olive Grove (#606C38). It displays \u0027WL - 16\u0027 in the top corner and the province name \u0027ولاية الجزائر\u0027 in bold white (28px). A floating rank badge pill shows \u0027المركز الأول وطنياً\u0027 with a gold medal icon.\\n- Stats Section: Three rounded cards on a Warm Cream (#FAFAF5) background displaying total trees (\u00271.2M 🌳\u0027), volunteers (\u002745k 👥\u0027), and campaigns (\u002712 🏕️\u0027). Below these is a \u0027National Contribution\u0027 card with an olive-green progress bar showing the province\u0027s percentage of total national reforestation.\\n- Top Volunteers: A section titled \u0027أبرز المتطوعين\u0027 featuring a list of top contributors with circular avatars, names, relative progress bars in #606C38, and tree counts.\\n- Active Campaigns: A section titled \u0027الحملات النشطة\u0027 with cards for local and provincial campaigns, each featuring a forest-green thumbnail, a type badge (e.g., \u0027ولائية\u0027 in blue), and an active status indicator.\\n- Aesthetics: Organic, nature-inspired, and premium with deep green accents and clear data visualization.\\nPlatform: ios\\nForm factor: phone\",\"name\":\"projects/5105441748622498278/screens/537259ccbf354b0b99973648b3b85e6a\",\"theme\":{\"colorMode\":\"LIGHT\",\"font\":\"PLUS_JAKARTA_SANS\",\"roundness\":\"ROUND_TWELVE\",\"customColor\":\"#a7d411\",\"saturation\":2},\"deviceType\":\"MOBILE\",\"screenType\":\"DESIGN\",\"screenMetadata\":{\"agentType\":\"PRO_AGENT\",\"status\":\"COMPLETE\"}}],\"theme\":{\"colorMode\":\"LIGHT\",\"font\":\"PLUS_JAKARTA_SANS\",\"roundness\":\"ROUND_TWELVE\",\"customColor\":\"#a7d411\",\"saturation\":2},\"deviceType\":\"MOBILE\",\"title\":\"تفاصيل الولاية - الجزائر خضراء\"}},{\"text\":\"تم تصميم شاشة \\\"تفاصيل الولاية\\\" لتطبيق الجزائر خضراء بنجاح:\\n\\n- **تفاصيل الولاية - الجزائر خضراء**: شاشة غنية بالبيانات بتنسيق RTL، تعرض إحصائيات الولاية البيئية ومساهمتها الوطنية من خلال شريط تقدم فخم. تتضمن قائمة بأبرز المتطوعين المحليين وأقساماً للحملات النشطة، مع هيدر جذاب بتدرج أخضر يعرض رتبة الولاية وطنياً ورمزها الإداري.\\n\\nماذا ترغب في تصميمه بعد ذلك؟ هل ننتقل لتصميم شاشة \\\"قائمة المتصدرين\\\" الكاملة أو ربما شاشة \\\"الخريطة التفاعلية\\\" للولاية؟\"},{\"suggestion\":\"تصميم شاشة \\\"قائمة المتصدرين\\\" الكاملة.\"},{\"suggestion\":\"تصميم شاشة \\\"الخريطة التفاعلية\\\" للولاية.\"}]}",
+                        "type":  "text"
+                    }
+                ],
+    "structuredContent":  {
+                              "outputComponents":  [
+                                                       {
+                                                           "design":  {
+                                                                          "deviceType":  "MOBILE",
+                                                                          "screens":  "",
+                                                                          "theme":  "@{colorMode=LIGHT; customColor=#a7d411; font=PLUS_JAKARTA_SANS; roundness=ROUND_TWELVE; saturation=2}",
+                                                                          "title":  "تفاصيل الولاية - الجزائر خضراء"
+                                                                      }
+                                                       },
+                                                       {
+                                                           "text":  "تم تصميم شاشة \"تفاصيل الولاية\" لتطبيق الجزائر خضراء بنجاح:\n\n- **تفاصيل الولاية - الجزائر خضراء**: شاشة غنية بالبيانات بتنسيق RTL، تعرض إحصائيات الولاية البيئية ومساهمتها الوطنية من خلال شريط تقدم فخم. تتضمن قائمة بأبرز المتطوعين المحليين وأقساماً للحملات النشطة، مع هيدر جذاب بتدرج أخضر يعرض رتبة الولاية وطنياً ورمزها الإداري.\n\nماذا ترغب في تصميمه بعد ذلك؟ هل ننتقل لتصميم شاشة \"قائمة المتصدرين\" الكاملة أو ربما شاشة \"الخريطة التفاعلية\" للولاية؟"
+                                                       },
+                                                       {
+                                                           "suggestion":  "تصميم شاشة \"قائمة المتصدرين\" الكاملة."
+                                                       },
+                                                       {
+                                                           "suggestion":  "تصميم شاشة \"الخريطة التفاعلية\" للولاية."
+                                                       }
+                                                   ],
+                              "projectId":  "5105441748622498278",
+                              "sessionId":  "9484834391265296880"
+                          }
+}

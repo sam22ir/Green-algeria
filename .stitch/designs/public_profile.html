@@ -1,0 +1,201 @@
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Noto+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#a7d411",
+                        "background-light": "#f8f8f6",
+                        "background-dark": "#1e2210",
+                        "forest": "#3A5A1E",
+                        "olive": "#606C38",
+                        "cream": "#FAFAF5"
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Noto Sans Arabic", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif; }
+        .sliver-header {
+            background: linear-gradient(135deg, #3A5A1E 0%, #606C38 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden pb-24">
+<!-- SliverAppBar -->
+<div class="sliver-header relative h-[220px] w-full flex flex-col justify-end p-6 rounded-b-xl shadow-lg">
+<div class="absolute top-6 left-6 flex items-center gap-2">
+<span class="text-white/80 font-bold text-base bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">WL - 16</span>
+</div>
+<div class="absolute top-6 right-6">
+<button class="text-white bg-white/10 p-2 rounded-full backdrop-blur-sm">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<div class="flex flex-col gap-2">
+<h1 class="text-white text-[32px] font-bold leading-tight">ولاية الجزائر</h1>
+<div class="flex">
+<div class="flex items-center gap-2 bg-primary px-4 py-1.5 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-white text-[20px] fill-current">rewarded_ads</span>
+<p class="text-white text-sm font-bold">المركز الأول وطنياً</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Stats Section -->
+<div class="px-4 -mt-6">
+<div class="grid grid-cols-3 gap-3">
+<div class="flex flex-col items-center justify-center gap-2 rounded-xl p-4 bg-white dark:bg-slate-800 shadow-sm border border-primary/10">
+<span class="text-2xl">🌳</span>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">الأشجار</p>
+<p class="text-forest dark:text-primary text-lg font-bold">1.2M</p>
+</div>
+<div class="flex flex-col items-center justify-center gap-2 rounded-xl p-4 bg-white dark:bg-slate-800 shadow-sm border border-primary/10">
+<span class="text-2xl">👥</span>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">المتطوعون</p>
+<p class="text-forest dark:text-primary text-lg font-bold">45k</p>
+</div>
+<div class="flex flex-col items-center justify-center gap-2 rounded-xl p-4 bg-white dark:bg-slate-800 shadow-sm border border-primary/10">
+<span class="text-2xl">🏕️</span>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">الحملات</p>
+<p class="text-forest dark:text-primary text-lg font-bold">12</p>
+</div>
+</div>
+</div>
+<!-- National Contribution Card -->
+<div class="p-4">
+<div class="bg-white dark:bg-slate-800 p-5 rounded-xl shadow-sm border border-primary/5">
+<div class="flex justify-between items-center mb-4">
+<p class="text-slate-900 dark:text-white font-bold text-base">المساهمة الوطنية في التشجير</p>
+<span class="text-forest dark:text-primary font-bold">75%</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
+<div class="bg-olive h-full rounded-full" style="width: 75%;"></div>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs mt-3">مقارنة بمتوسط الولايات الأخرى، الجزائر تساهم بـ 1/4 المجهود الوطني.</p>
+</div>
+</div>
+<!-- Top Volunteers -->
+<div class="flex flex-col gap-4 p-4">
+<div class="flex justify-between items-center">
+<h2 class="text-slate-900 dark:text-white text-xl font-bold">أبرز المتطوعين</h2>
+<button class="text-primary text-sm font-medium">عرض الكل</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Volunteer 1 -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-3 rounded-lg border border-primary/5">
+<div class="relative">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Volunteer profile picture of a young man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsARhDq7SnIZuGXH1NjOU8nNw5h0lYDU-qn-ZmL8lyJpq5qzJ7viou6iU9E8MyIebrwkoIS2rVHluhJ-404QhfE8PJE5dOdLDM8cDT34D1ThOFdtxIOEBGm1XGOs1qx--GYxlNKhpnM4vlaXRALxafJiX4DMXxHqZUycb25ECy8Lz9AxfYCann1JA1zlB7aEeI2HhuE8at7Gb4roMik4zbvPTi8lU2r_IpCz0jqTzOiJ9GI3EOuHowK23kJMSIaDwID2YWL5UM1NQ"/>
+<div class="absolute -bottom-1 -right-1 bg-yellow-400 text-white p-0.5 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] fill-current">star</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<p class="text-slate-900 dark:text-white font-bold text-sm">أحمد بن محمد</p>
+<p class="text-olive dark:text-primary text-xs font-bold">1.2k شجرة</p>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full">
+<div class="bg-olive h-full rounded-full" style="width: 85%;"></div>
+</div>
+</div>
+</div>
+<!-- Volunteer 2 -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-3 rounded-lg border border-primary/5">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Volunteer profile picture of a woman smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS9yE78wDKAIgrnQcEkxm4cp9q_4nIoaMKp_FxVJXmKBJhkp7lGS6QoqOHq5WnutgnF2IYtlkh7-2ELER0sHQLJKOVjdVsPNxwVMWEj0ExxFDQBKCpyhpOn__vK1fgjtO7nKq4C7t963VVUWtzyd9CFy-2X7tB2tTQIJbCN1xh-z5gKwlXkm2ubkIxfyIQO-GxHI7PXPSfdo2K43SsXioaMYjDigpNiaaooZKuiFYDyCBKRqOgf8iLd89yzLsWMImzR9odVEfZbbg"/>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<p class="text-slate-900 dark:text-white font-bold text-sm">سارة لعمري</p>
+<p class="text-olive dark:text-primary text-xs font-bold">980 شجرة</p>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full">
+<div class="bg-olive h-full rounded-full" style="width: 70%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Campaigns -->
+<div class="flex flex-col gap-4 p-4">
+<h2 class="text-slate-900 dark:text-white text-xl font-bold">الحملات النشطة</h2>
+<div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+<!-- Campaign Card 1 -->
+<div class="min-w-[280px] bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-primary/5 shadow-sm">
+<div class="relative h-32 w-full">
+<img class="w-full h-full object-cover" data-alt="Lush green forest with young saplings" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQkc54LYQ7n_rwZLIqE05l901HNdfVBWX0bmXk_f5f6x3WgUIb3eBX-BPgklWULqxyU0SSXZACSlt43aTywLMK2m1wbLnoc98TChRbbayVZlMALJTiYcUwub5oeiYe2CzX2XIOkTz4nwls-2yJXghDCO1dbQ_WFf2KO16yYyRiTCdODv5ZhwO_7NN1PEIPKuGel2biIu1KHvm_kohp0p1n8DL1eLchRhpERZ2mHJlFLcWzUzAuRLTLVSq0OwpGgItKqJHw_sDtcRY"/>
+<div class="absolute top-3 right-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded">ولائية</div>
+<div class="absolute bottom-3 left-3 flex items-center gap-1 bg-green-500/90 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm">
+<span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+<span>نشط الآن</span>
+</div>
+</div>
+<div class="p-4">
+<h3 class="text-slate-900 dark:text-white font-bold text-sm mb-2">حملة غابة بوشاوي الكبرى</h3>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>الشراقة، الجزائر العاصمة</span>
+</div>
+</div>
+</div>
+<!-- Campaign Card 2 -->
+<div class="min-w-[280px] bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-primary/5 shadow-sm">
+<div class="relative h-32 w-full">
+<img class="w-full h-full object-cover" data-alt="Hand planting a tree seedling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAf3n18XIDBykNc54xDbFV7e_pwEfz6U3LxzDX-U1SDmr4K66PctV4tcjKkgaogemAW91Mh__8ftFg1JXyFLfHxnsRGlawAFLJg64q1vnrh3PVld8_-lEoWDw1TU8qRlGU2W_DViif0nlvoL2mJqRhUambAVIma2k_xFXfcnroF4z8axlAYW4rc0DQ6p06YfPCMQJdnbP1gVGkJBNlFHtIvxMWev7T5TK72AXQcRzlN4JgNIrhKNYLxrr88CTdyxTnFH1u3Jo_fdR0"/>
+<div class="absolute top-3 right-3 bg-orange-600 text-white text-[10px] font-bold px-2 py-1 rounded">محلية</div>
+<div class="absolute bottom-3 left-3 flex items-center gap-1 bg-green-500/90 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm">
+<span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+<span>تنطلق غداً</span>
+</div>
+</div>
+<div class="p-4">
+<h3 class="text-slate-900 dark:text-white font-bold text-sm mb-2">تشجير حي باب الواد</h3>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>باب الواد، الجزائر العاصمة</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<div class="fixed bottom-0 left-0 right-0 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-4 pb-6 pt-2 z-50">
+<div class="flex gap-2">
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">home</span>
+<p class="text-[10px] font-medium">الرئيسية</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">map</span>
+<p class="text-[10px] font-medium">الخريطة</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-forest dark:text-primary" href="#">
+<span class="material-symbols-outlined fill-current">forest</span>
+<p class="text-[10px] font-bold">الولايات</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-[10px] font-medium">الحساب</p>
+</a>
+</div>
+</div>
+</div>
+
+```</body></html>

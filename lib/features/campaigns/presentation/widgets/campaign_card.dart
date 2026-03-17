@@ -1,10 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/custom_card.dart';
-import '../../../../core/widgets/custom_buttons.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../widgets/custom_card.dart';
+import '../../../../widgets/custom_buttons.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../models/campaign_model.dart';
-import 'package:intl/intl.dart';
+import '../../../../constants/campaign_covers.dart';
 
 class CampaignCard extends StatelessWidget {
   final CampaignModel campaign;
@@ -20,8 +20,10 @@ class CampaignCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final formatter = DateFormat('MMM d, yyyy');
+    final languageCode = context.locale.languageCode;
+    final formatter = DateFormat('MMM d, yyyy', languageCode);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     // Calculate progress
     double progress = 0.0;
@@ -33,27 +35,74 @@ class CampaignCard extends StatelessWidget {
     if (campaign.startDate != null && campaign.endDate != null) {
       dateStr = '${formatter.format(campaign.startDate!)} - ${formatter.format(campaign.endDate!)}';
     } else if (campaign.startDate != null) {
-      dateStr = 'Starts ${formatter.format(campaign.startDate!)}';
+      dateStr = '${'starts'.tr()} ${formatter.format(campaign.startDate!)}';
     }
+
+    // Use campaign's DB cover, or a beautiful local fallback by type
+    final coverAsset = campaign.coverImageAsset ?? AppCampaignCovers.forType(campaign.type);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: CustomCard(
         padding: EdgeInsets.zero,
         onTap: onTap,
+        color: colorScheme.surfaceContainerLow,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image Placeholder - later fetch from Supabase if available
-            Container(
-              height: 160,
-              decoration: BoxDecoration(
-                color: AppColors.oliveGrey.withValues(alpha: 0.2),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: const Center(
-                child: Icon(Icons.nature_people, size: 48, color: AppColors.ivorySand),
-              ),
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  child: Container(
+                    height: 160,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.1),
+                    ),
+                    child: Image.asset(
+                      coverAsset,
+                      fit: BoxFit.cover,
+                      errorBuilder: (c, e, s) => Center(
+                        child: Icon(
+                          Icons.nature_people_rounded,
+                          size: 48,
+                          color: colorScheme.primary.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (campaign.hasZone)
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.location_on_rounded, size: 14, color: Colors.white),
+                              const SizedBox(width: 4),
+                              Text(
+                                'geographic_zone'.tr(),
+                                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.all(20),
@@ -66,53 +115,59 @@ class CampaignCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           campaign.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.slateCharcoal,
+                            color: colorScheme.onSurface,
                           ),
                         ),
-                      ),
-                      _buildStatusBadge(campaign.status, context),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  
-                  // Organizer info (placeholder for now, needs user fetch)
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 12,
-                        backgroundColor: AppColors.mossForest,
-                        child: Icon(Icons.group, size: 14, color: Colors.white),
                       ),
                       const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          campaign.organizerId ?? 'Unknown Organizer',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.oliveGrey,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      _buildStatusBadge(theme, campaign.status),
                     ],
                   ),
-
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
+                  
+                  // Organizer info — only show if name is available
+                  if (campaign.organizerName != null && campaign.organizerName!.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.person_rounded, size: 14, color: colorScheme.primary),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            campaign.organizerName!,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: colorScheme.onSurface.withValues(alpha: 0.5),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.park, size: 16, color: AppColors.mossForest),
-                          const SizedBox(width: 4),
+                          Icon(Icons.park_rounded, size: 16, color: colorScheme.primary),
+                          const SizedBox(width: 6),
                           Text(
-                            '${l10n.target}: ${campaign.treeGoal}',
-                            style: const TextStyle(
-                              color: AppColors.slateCharcoal,
+                            '${'target'.tr()}: ${campaign.treeGoal}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: colorScheme.onSurface,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -121,12 +176,13 @@ class CampaignCard extends StatelessWidget {
                       if (dateStr.isNotEmpty)
                         Row(
                           children: [
-                            const Icon(Icons.calendar_month, size: 16, color: AppColors.mossForest),
-                            const SizedBox(width: 4),
+                            Icon(Icons.calendar_month_rounded, size: 16, color: colorScheme.primary),
+                            const SizedBox(width: 6),
                             Text(
                               dateStr,
-                              style: const TextStyle(
-                                color: AppColors.slateCharcoal,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: colorScheme.onSurface,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -134,7 +190,7 @@ class CampaignCard extends StatelessWidget {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   
                   // Progress Bar
                   Row(
@@ -144,8 +200,8 @@ class CampaignCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                             child: LinearProgressIndicator(
                               value: progress,
-                              backgroundColor: AppColors.ivorySand,
-                              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.mossForest),
+                              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                               minHeight: 8,
                             ),
                           ),
@@ -153,10 +209,10 @@ class CampaignCard extends StatelessWidget {
                         const SizedBox(width: 12),
                         Text(
                             '${campaign.treePlanted} / ${campaign.treeGoal}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.mossForest,
+                                color: colorScheme.primary,
                             ),
                         ),
                     ],
@@ -164,7 +220,7 @@ class CampaignCard extends StatelessWidget {
                   
                   const SizedBox(height: 24),
                   SecondaryButton(
-                    text: l10n.participateNow,
+                    text: 'participate_now'.tr(),
                     onPressed: onJoinTap,
                   ),
                 ],
@@ -176,31 +232,31 @@ class CampaignCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(String status, BuildContext context) {
+  Widget _buildStatusBadge(ThemeData theme, String status) {
+    final colorScheme = theme.colorScheme;
     Color bgColor;
     Color textColor;
     String text;
 
-    // Translation keys could be added for these
     switch (status.toLowerCase()) {
       case 'active':
-        bgColor = AppColors.mossForest.withValues(alpha: 0.1);
-        textColor = AppColors.mossForest;
-        text = 'نشطة'; // Active
+        bgColor = colorScheme.primary.withValues(alpha: 0.1);
+        textColor = colorScheme.primary;
+        text = 'active'.tr();
         break;
       case 'upcoming':
         bgColor = Colors.orange.withValues(alpha: 0.1);
         textColor = Colors.orange.shade800;
-        text = 'قريباً'; // Upcoming
+        text = 'upcoming'.tr();
         break;
       case 'completed':
-        bgColor = AppColors.oliveGrey.withValues(alpha: 0.1);
-        textColor = AppColors.oliveGrey;
-        text = 'مكتملة'; // Completed
+        bgColor = colorScheme.onSurface.withValues(alpha: 0.1);
+        textColor = colorScheme.onSurface.withValues(alpha: 0.5);
+        text = 'completed_status'.tr();
         break;
       default:
-        bgColor = Colors.grey.withValues(alpha: 0.1);
-        textColor = Colors.grey.shade700;
+        bgColor = colorScheme.onSurface.withValues(alpha: 0.05);
+        textColor = colorScheme.onSurface.withValues(alpha: 0.4);
         text = status;
     }
 
@@ -214,7 +270,7 @@ class CampaignCard extends StatelessWidget {
         text,
         style: TextStyle(
           color: textColor,
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.bold,
         ),
       ),

@@ -1,11 +1,13 @@
+/// Matches the `tree_plantings` Supabase table:
+/// id INTEGER (auto), user_id TEXT, campaign_id INTEGER, tree_species_id INTEGER,
+/// latitude FLOAT, longitude FLOAT, planted_at TIMESTAMPTZ, is_synced BOOL
 class TreePlantingModel {
-  final int? id;
-  final String userId;
-  final int? campaignId;
-  final int? treeSpeciesId;
+  final int? id;          // INTEGER in DB (auto-generated)
+  final String userId;    // TEXT in DB (auth.uid() as text)
+  final int? campaignId;  // INTEGER FK → campaigns.id (was wrongly String)
+  final int? treeSpeciesId; // INTEGER FK → tree_species.id (was wrongly String, also wrong column name 'species_id')
   final double? latitude;
   final double? longitude;
-  final String? photoUrl;
   final DateTime? plantedAt;
   final bool isSynced;
   final DateTime? createdAt;
@@ -17,7 +19,6 @@ class TreePlantingModel {
     this.treeSpeciesId,
     this.latitude,
     this.longitude,
-    this.photoUrl,
     this.plantedAt,
     this.isSynced = true,
     this.createdAt,
@@ -26,12 +27,11 @@ class TreePlantingModel {
   factory TreePlantingModel.fromJson(Map<String, dynamic> json) {
     return TreePlantingModel(
       id: json['id'] as int?,
-      userId: json['user_id'] as String,
+      userId: json['user_id']?.toString() ?? '',
       campaignId: json['campaign_id'] as int?,
-      treeSpeciesId: json['tree_species_id'] as int?,
+      treeSpeciesId: json['tree_species_id'] as int?,  // FIX: correct column name
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
-      photoUrl: json['photo_url'] as String?,
       plantedAt: json['planted_at'] != null ? DateTime.parse(json['planted_at']) : null,
       isSynced: json['is_synced'] as bool? ?? true,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
@@ -43,14 +43,12 @@ class TreePlantingModel {
       'user_id': userId,
       'is_synced': isSynced,
     };
-    if (id != null) data['id'] = id;
-    if (campaignId != null) data['campaign_id'] = campaignId;
-    if (treeSpeciesId != null) data['tree_species_id'] = treeSpeciesId;
+    // NOTE: Do NOT include 'id' — DB auto-generates INTEGER serial
+    if (campaignId != null) data['campaign_id'] = campaignId;   // FIX: int, not String
+    if (treeSpeciesId != null) data['tree_species_id'] = treeSpeciesId; // FIX: correct column name + int type
     if (latitude != null) data['latitude'] = latitude;
     if (longitude != null) data['longitude'] = longitude;
-    if (photoUrl != null) data['photo_url'] = photoUrl;
     if (plantedAt != null) data['planted_at'] = plantedAt?.toIso8601String();
-    
     return data;
   }
 }

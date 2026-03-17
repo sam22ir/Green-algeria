@@ -1,45 +1,51 @@
 {
   "project_info": {
-    "project_number": "318014479319",
-    "project_id": "green-algeria-firebase",
-    "storage_bucket": "green-algeria-firebase.firebasestorage.app"
+    "project_number": "177139315328",
+    "project_id": "green-algeria-f0278",
+    "storage_bucket": "green-algeria-f0278.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:318014479319:android:b3fcb4804acdf37618c992",
-        "android_client_info": {
-          "package_name": "com.greenalgeria.app"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyANfqdn5R75og3UtTUTXuKFQ6Bad5p-RFQ"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:318014479319:android:a68a1d23cc60641118c992",
+        "mobilesdk_app_id": "1:177139315328:android:e67b7072ba3ab18b21ec65",
         "android_client_info": {
           "package_name": "com.saadisamir.green_algeria"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "177139315328-8dqpc160dtk394qhq8ffrhvlt2def27j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.saadisamir.green_algeria",
+            "certificate_hash": "239da00330e01b1002e58f295fc9ffa9880d33a8"
+          }
+        },
+        {
+          "client_id": "177139315328-qljfie32tb1291kv6fpe56o5fcscbfcs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyANfqdn5R75og3UtTUTXuKFQ6Bad5p-RFQ"
+          "current_key": "AIzaSyBsWC9vlgNmgPZJafFlxafMEOaa6FCYqlw"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "177139315328-qljfie32tb1291kv6fpe56o5fcscbfcs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "177139315328-9m36slfmvn3u72m17gfrfftbki09sfeb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.saadisamir.greenAlgeria"
+              }
+            }
+          ]
         }
       }
     }

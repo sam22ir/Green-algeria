@@ -46,11 +46,12 @@ void main() {
       expect(campaign.status, 'active');
       expect(campaign.treeGoal, 0);
       expect(campaign.treePlanted, 0);
+      expect(campaign.hasZone, false);
     });
 
     test('toJson excludes null optional fields', () {
       final campaign = CampaignModel(
-        id: 1,
+        id: 3,
         title: 'Spring Planting',
         type: 'provincial',
         status: 'upcoming',
@@ -70,7 +71,7 @@ void main() {
 
     test('toJson includes dates as ISO strings', () {
       final campaign = CampaignModel(
-        id: 10,
+        id: 4,
         title: 'dated',
         type: 'national',
         startDate: DateTime.utc(2024, 6, 1),

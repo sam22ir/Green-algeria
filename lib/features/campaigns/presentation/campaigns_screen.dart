@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../services/supabase_service.dart';
 import '../../../models/campaign_model.dart';
 import '../../../models/user_model.dart';
@@ -8,6 +7,8 @@ import 'widgets/campaign_card.dart';
 import 'widgets/create_campaign_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/utils/campaign_utils.dart';
+import '../../../widgets/tutorial_overlay.dart';
 
 class CampaignsScreen extends StatefulWidget {
   const CampaignsScreen({super.key});
@@ -29,9 +30,11 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserRole();
-    _loadCampaigns();
-    _setupRealtime();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserRole();
+      _loadCampaigns();
+      _setupRealtime();
+    });
   }
 
   void _setupRealtime() {
@@ -72,41 +75,47 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
   void _loadCampaigns() {
     setState(() {
       _nationalFuture = _supabaseService.getActiveCampaigns(type: 'national');
-      // For now, loading all provincial/local. Later filter by user province dynamically.
-      _provincialFuture = _supabaseService.getActiveCampaigns(type: 'provincial');
-      _localFuture = _supabaseService.getActiveCampaigns(type: 'local');
+      _provincialFuture = _supabaseService.getActiveCampaigns(
+        type: 'provincial',
+        provinceId: _currentUser?.provinceId,
+      );
+      _localFuture = _supabaseService.getActiveCampaigns(
+        type: 'local',
+        provinceId: _currentUser?.provinceId,
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      backgroundColor: AppColors.linenWhite,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            _loadCampaigns();
-            await Future.delayed(const Duration(seconds: 1));
-          },
-          child: Column(
-            children: [
-              _buildAppBar(l10n),
-              _buildTabBar(l10n),
-              Expanded(
-                child: _buildTabView(l10n),
-              ),
-            ],
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return TutorialOverlay(
+      tutorial: AppTutorials.campaigns,
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              _loadCampaigns();
+              await Future.delayed(const Duration(milliseconds: 200));
+            },
+            color: colorScheme.primary,
+            displacement: 40.0,
+            strokeWidth: 2.5,
+            child: Column(
+              children: [
+                _buildAppBar(theme),
+                _buildTabBar(theme),
+                Expanded(
+                  child: _buildTabView(theme),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      floatingActionButton: _isLoadingUser || _currentUser == null || !_currentUser!.isOrganizer
-          ? null
-          : FloatingActionButton(
-              backgroundColor: AppColors.mossForest,
-              onPressed: _showCreateCampaignSheet,
-              child: const Icon(Icons.add, color: Colors.white),
-            ),
     );
   }
 
@@ -125,39 +134,89 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
     }
   }
 
-  Widget _buildAppBar(AppLocalizations l10n) {
+  Widget _buildAppBar(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Text(
-        l10n.campaigns,
-        style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: AppColors.slateCharcoal,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabBar(AppLocalizations l10n) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.ivorySand.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(30),
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
       child: Row(
         children: [
-          _buildTab(0, l10n.national),
-          _buildTab(1, l10n.wilaya),
-          _buildTab(2, l10n.individual),
+          // Past campaigns button (left/start side in RTL)
+          Tooltip(
+            message: 'past_campaigns'.tr(),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () => context.push('/past-campaigns'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.history_rounded, color: colorScheme.primary, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      'past_campaigns'.tr(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Centered title
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.campaign_rounded, color: colorScheme.primary, size: 26),
+                const SizedBox(width: 8),
+                Text(
+                  'campaigns'.tr(),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Invisible spacer to balance layout
+          const SizedBox(width: 100),
         ],
       ),
     );
   }
 
-  Widget _buildTab(int index, String title) {
+  Widget _buildTabBar(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        children: [
+          _buildTab(theme, 0, 'national'.campaignTypeLabel),
+          _buildTab(theme, 1, 'provincial'.campaignTypeLabel),
+          _buildTab(theme, 2, 'local'.campaignTypeLabel),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTab(ThemeData theme, int index, String title) {
+    final colorScheme = theme.colorScheme;
     final isSelected = _selectedTabIndex == index;
     return Expanded(
       child: GestureDetector(
@@ -165,12 +224,12 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.mossForest : Colors.transparent,
+            color: isSelected ? colorScheme.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(26),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.mossForest.withValues(alpha: 0.3),
+                      color: colorScheme.primary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     )
@@ -181,7 +240,7 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.slateCharcoal,
+              color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
             ),
           ),
@@ -190,7 +249,8 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
     );
   }
 
-  Widget _buildTabView(AppLocalizations l10n) {
+  Widget _buildTabView(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
     Future<List<CampaignModel>> futureToUse;
     if (_selectedTabIndex == 0) {
       futureToUse = _nationalFuture;
@@ -204,24 +264,25 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
       future: futureToUse,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.mossForest));
+          return Center(child: CircularProgressIndicator(color: colorScheme.primary));
         }
         if (snapshot.hasError) {
-          return Center(child: Text('Error loading campaigns: ${snapshot.error}'));
+          return Center(child: Text('error_loading_campaigns'.tr(args: [snapshot.error.toString()])));
         }
 
         final campaigns = snapshot.data ?? [];
         if (campaigns.isEmpty) {
           return Center(
             child: Text(
-              'لا توجد حملات حالياً في هذا التصنيف', // Translation needed
-              style: const TextStyle(color: AppColors.oliveGrey, fontSize: 16),
+              'no_campaigns_category'.tr(),
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 16),
             ),
           );
         }
 
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          physics: const BouncingScrollPhysics(),
           itemCount: campaigns.length,
           itemBuilder: (context, index) {
             final campaign = campaigns[index];

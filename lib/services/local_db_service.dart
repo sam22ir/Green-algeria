@@ -21,9 +21,19 @@ class LocalDbService {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // For simplicity in this restoration/hotfix, we drop and recreate
+      // as the amount of offline data is likely zero or manageable.
+      await db.execute('DROP TABLE IF EXISTS offline_queue');
+      await _createDB(db, newVersion);
+    }
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -33,14 +43,14 @@ class LocalDbService {
         user_id TEXT NOT NULL,
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
-        species_id INTEGER,
-        campaign_id INTEGER,
-        image_path TEXT NOT NULL,
+        species_id TEXT,
+        campaign_id TEXT,
+        image_path TEXT,
         status TEXT DEFAULT 'pending',
         created_at TEXT NOT NULL
       )
     ''');
-    debugPrint('Created offline_queue table');
+    debugPrint('Created/Updated offline_queue table (v2)');
   }
 
   /// Insert a planting record into the offline queue

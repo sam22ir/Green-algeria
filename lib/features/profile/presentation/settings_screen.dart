@@ -1,10 +1,18 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/custom_card.dart';
-import '../../../../core/providers/settings_provider.dart';
-import '../../../../services/auth_service.dart';
+import '../../../core/routing/app_router.dart';
+
+import '../../../widgets/custom_card.dart';
+import '../../../services/settings_provider.dart';
+import '../../../services/supabase_service.dart';
+import '../../../services/auth_service.dart';
+
+import '../../../../models/user_model.dart';
+import '../../../../constants/provinces.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'widgets/language_selection_sheet.dart';
+import '../../../core/theme_controller.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,92 +22,387 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  UserModel? _user;
+  bool _isLoadingUser = true;
+  final _supabaseService = SupabaseService();
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.linenWhite,
-      appBar: AppBar(
-        backgroundColor: AppColors.linenWhite,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'الإعدادات',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.slateCharcoal,
-            fontFamily: 'Plus Jakarta Sans',
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final user = await _supabaseService.getUserProfile();
+      if (mounted) {
+        setState(() {
+          _user = user;
+          _isLoadingUser = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingUser = false);
+    }
+  }
+
+  String _getProvinceName(int? id) {
+    if (id == null) return 'not_set'.tr();
+    try {
+      final province = algeriaProvinces.firstWhere((p) => p.id == id);
+      return context.locale.languageCode == 'ar' ? province.nameAr : province.nameEn;
+    } catch (_) {
+      return 'not_set'.tr();
+    }
+  }
+
+  Future<void> _showProvincePicker() async {
+    if (_user == null) return;
+    
+    // Check 3-day constraint
+    if (_user!.provinceChangedAt != null) {
+      final daysSinceUpdate = DateTime.now().difference(_user!.provinceChangedAt!).inDays;
+      if (daysSinceUpdate < 3) {
+        final daysLeft = 3 - daysSinceUpdate;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('province_change_wait'.tr(args: [daysLeft.toString()])),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+        }
+        return;
+      }
+    }
+
+    final provinces = await _supabaseService.getProvinces();
+    if (!mounted) return;
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final selected = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.9,
+        builder: (_, controller) => Container(
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: const BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28)),
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.slateCharcoal, size: 24),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildGeneralGroup(),
-              const SizedBox(height: 24),
-              _buildSupportGroup(),
-              const SizedBox(height: 24),
-              _buildActionsGroup(context),
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12),
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text(
+                  'pick_province'.tr(), 
+                  style: TextStyle(
+                    fontSize: 18, 
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  controller: controller,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: provinces.length,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemBuilder: (context, index) {
+                    final p = provinces[index];
+                    final pName = context.locale.languageCode == 'ar' ? p['name_ar'] : p['name_en'];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      title: Text(
+                        '${p['code']} - $pName',
+                        style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w500),
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: colorScheme.primary.withValues(alpha: 0.3)),
+                      onTap: () => Navigator.pop(context, p),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+
+    if (selected != null && mounted) {
+      setState(() => _isLoadingUser = true);
+      try {
+        final updatedUser = _user!.copyWith(
+          provinceId: selected['id'] as int,
+          provinceChangedAt: DateTime.now(),
+        );
+        await _supabaseService.updateUserProfile(updatedUser);
+        setState(() => _user = updatedUser);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('province_updated'.tr()), 
+              backgroundColor: colorScheme.primary,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('province_update_failed'.tr(args: [e.toString()])), 
+              backgroundColor: colorScheme.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+        }
+      } finally {
+        setState(() => _isLoadingUser = false);
+      }
+    }
   }
 
-  Widget _buildGeneralGroup() {
-    final settings = context.watch<SettingsProvider>();
-    return CustomCard(
-      padding: EdgeInsets.zero,
-      color: AppColors.ivorySand,
-      child: Column(
-        children: [
-          _buildListTile(
-            title: 'اللغة',
-            icon: Icons.language,
-            trailing: Text(
-              settings.locale.languageCode == 'ar' ? 'العربية' : 'English',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppColors.slateCharcoal,
+  void _showLanguagePicker() {
+    final settings = context.read<SettingsProvider>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => LanguageSelectionSheet(
+        currentLanguageCode: settings.locale.languageCode,
+        onLanguageSelected: (code) {
+          final newLocale = Locale(code);
+          context.read<SettingsProvider>().setLocale(newLocale);
+          context.setLocale(newLocale);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'settings'.tr(),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: colorScheme.onSurface, size: 22),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: _isLoadingUser 
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                   _buildSectionHeader('general'.tr()),
+                  _buildGeneralGroup(theme),
+                  const SizedBox(height: 24),
+                  _buildSectionHeader('notification_preferences'.tr()),
+                  _buildNotificationsGroup(theme),
+                  const SizedBox(height: 24),
+                  _buildSectionHeader('support'.tr()),
+                  _buildSupportGroup(theme),
+                  const SizedBox(height: 24),
+                  _buildSectionHeader('account'.tr()),
+                  _buildActionsGroup(context, theme),
+                  const SizedBox(height: 40),
+                ],
               ),
             ),
-            onTap: () {
-              final newLocale = settings.locale.languageCode == 'ar' 
-                  ? const Locale('en', 'US') 
-                  : const Locale('ar', 'AE');
-              context.read<SettingsProvider>().setLocale(newLocale);
-            },
-          ),
-          _buildDivider(),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGeneralGroup(ThemeData theme) {
+    final settings = context.watch<SettingsProvider>();
+    final colorScheme = theme.colorScheme;
+
+    return CustomCard(
+      padding: EdgeInsets.zero,
+      color: colorScheme.surfaceContainerLow,
+      child: Column(
+        children: [
           _buildListTile(
-            title: 'الوضع الداكن',
+            theme: theme,
+            title: 'language'.tr(),
+            icon: Icons.language_rounded,
+            trailing: Text(
+              settings.locale.languageCode == 'ar' ? 'العربية' : 'English',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            onTap: _showLanguagePicker,
+          ),
+          _buildDivider(theme),
+          _buildListTile(
+            theme: theme,
+            title: 'province'.tr(),
+            icon: Icons.location_on_outlined,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _getProvinceName(_user?.provinceId),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
+                ),
+                Icon(
+                  context.locale.languageCode == 'ar' ? Icons.chevron_left : Icons.chevron_right,
+                  color: colorScheme.onSurface.withValues(alpha: 0.4),
+                ),
+              ],
+            ),
+            onTap: _showProvincePicker,
+          ),
+          _buildDivider(theme),
+          _buildListTile(
+            theme: theme,
+            title: 'dark_mode'.tr(),
             icon: Icons.dark_mode_outlined,
             trailing: Switch(
-              value: settings.themeMode == ThemeMode.dark,
-              activeColor: AppColors.oliveGrove,
+              value: ThemeController().isDarkMode,
+              activeTrackColor: colorScheme.secondary,
               onChanged: (val) {
-                context.read<SettingsProvider>().setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+                ThemeController().setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
               },
             ),
           ),
-          _buildDivider(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationsGroup(ThemeData theme) {
+    final settings = context.watch<SettingsProvider>();
+    final colorScheme = theme.colorScheme;
+
+    return CustomCard(
+      padding: EdgeInsets.zero,
+      color: colorScheme.surfaceContainerLow,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           _buildListTile(
-            title: 'الإشعارات',
-            icon: Icons.notifications_none,
+            theme: theme,
+            title: 'national_campaigns_notif'.tr(),
+            icon: Icons.public_rounded,
             trailing: Switch(
-              value: settings.notificationsEnabled,
-              activeColor: AppColors.oliveGrove,
-              onChanged: (val) {
-                context.read<SettingsProvider>().setNotificationsEnabled(val);
-              },
+              value: settings.notifNationalCampaigns,
+              activeTrackColor: colorScheme.secondary,
+              onChanged: (val) => context.read<SettingsProvider>().setNotifNationalCampaigns(val),
+            ),
+          ),
+          _buildDivider(theme),
+          _buildListTile(
+            theme: theme,
+            title: 'provincial_campaigns_notif'.tr(),
+            icon: Icons.map_rounded,
+            trailing: Switch(
+              value: settings.notifProvincialCampaigns,
+              activeTrackColor: colorScheme.secondary,
+              onChanged: (val) => context.read<SettingsProvider>().setNotifProvincialCampaigns(val),
+            ),
+          ),
+          _buildDivider(theme),
+           _buildListTile(
+            theme: theme,
+            title: 'local_campaigns_notif'.tr(),
+            icon: Icons.location_on_rounded,
+            trailing: Switch(
+              value: settings.notifLocalCampaigns,
+              activeTrackColor: colorScheme.secondary,
+              onChanged: (val) => context.read<SettingsProvider>().setNotifLocalCampaigns(val),
+            ),
+          ),
+          _buildDivider(theme),
+          _buildListTile(
+            theme: theme,
+            title: 'my_campaign_updates_notif'.tr(),
+            icon: Icons.auto_awesome_rounded,
+            trailing: Switch(
+              value: settings.notifMyCampaigns,
+              activeTrackColor: colorScheme.secondary,
+              onChanged: (val) => context.read<SettingsProvider>().setNotifMyCampaigns(val),
+            ),
+          ),
+          _buildDivider(theme),
+          _buildListTile(
+            theme: theme,
+            title: 'upgrades_support_notif'.tr(),
+            icon: Icons.support_agent_rounded,
+            trailing: Switch(
+              value: settings.notifSupport,
+              activeTrackColor: colorScheme.secondary,
+              onChanged: (val) => context.read<SettingsProvider>().setNotifSupport(val),
+            ),
+          ),
+          _buildDivider(theme),
+          _buildListTile(
+            theme: theme,
+            title: 'system_notifications_notif'.tr(),
+            icon: Icons.notifications_active_rounded,
+            trailing: Switch(
+              value: settings.notifSystem,
+              activeTrackColor: colorScheme.secondary,
+              onChanged: (val) => context.read<SettingsProvider>().setNotifSystem(val),
             ),
           ),
         ],
@@ -107,64 +410,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSupportGroup() {
+  Widget _buildSupportGroup(ThemeData theme) {
+    final isAr = context.locale.languageCode == 'ar';
+    final colorScheme = theme.colorScheme;
+
     return CustomCard(
       padding: EdgeInsets.zero,
-      color: AppColors.ivorySand,
+      color: colorScheme.surfaceContainerLow,
       child: Column(
         children: [
           _buildListTile(
-            title: 'الإبلاغ عن مشكلة',
+            theme: theme,
+            title: 'report_problem'.tr(),
             icon: Icons.report_problem_outlined,
-            trailing: const Icon(Icons.chevron_left, color: AppColors.oliveGrey),
-            onTap: () {
-              _showComingSoon(context, 'سيتم تفعيل ميزة الإبلاغ عن مشكلة قريباً.');
-            },
+            trailing: Icon(isAr ? Icons.chevron_left : Icons.chevron_right, color: colorScheme.onSurface.withValues(alpha: 0.3)),
+            onTap: () => context.push('/report-problem'),
           ),
-          _buildDivider(),
+          _buildDivider(theme),
           _buildListTile(
-            title: 'الدعم الفني',
-            icon: Icons.headset_mic_outlined,
-            trailing: const Icon(Icons.chevron_left, color: AppColors.oliveGrey),
-            onTap: () {
-              _showComingSoon(context, 'سيتم توفير الدعم الفني قريباً.');
-            },
+            theme: theme,
+            title: 'technical_support'.tr(),
+            icon: Icons.support_agent_rounded,
+            trailing: Icon(isAr ? Icons.chevron_left : Icons.chevron_right, color: colorScheme.onSurface.withValues(alpha: 0.3)),
+            onTap: () => context.push('/technical-support'),
           ),
-          _buildDivider(),
+          _buildDivider(theme),
           _buildListTile(
-            title: 'عن التطبيق',
-            icon: Icons.info_outline,
-            trailing: const Icon(Icons.chevron_left, color: AppColors.oliveGrey),
-            onTap: () {
-              _showComingSoon(context, 'الجزائر خضراء - إصدار 1.0\\nمطور بحب من قبل: Saadi Samir');
-            },
+            theme: theme,
+            title: 'about_app'.tr(),
+            icon: Icons.info_outline_rounded,
+            trailing: Icon(isAr ? Icons.chevron_left : Icons.chevron_right, color: colorScheme.onSurface.withValues(alpha: 0.3)),
+            onTap: () => context.push('/about'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionsGroup(BuildContext context) {
+  Widget _buildActionsGroup(BuildContext context, ThemeData theme) {
+    final isAr = context.locale.languageCode == 'ar';
+    final colorScheme = theme.colorScheme;
+
     return CustomCard(
       padding: EdgeInsets.zero,
-      color: AppColors.ivorySand,
+      color: colorScheme.surfaceContainerLow,
       child: Column(
         children: [
           _buildListTile(
-            title: 'طلب ترقية الحساب',
-            icon: Icons.star_border,
-            trailing: const Icon(Icons.chevron_left, color: AppColors.oliveGrey),
-            onTap: () {
-              context.push('/role-request');
-            },
+            theme: theme,
+            title: 'request_upgrade'.tr(),
+            icon: Icons.auto_awesome_outlined,
+            trailing: Icon(isAr ? Icons.chevron_left : Icons.chevron_right, color: colorScheme.onSurface.withValues(alpha: 0.3)),
+            onTap: () => context.push('/role-request'),
           ),
-          _buildDivider(),
+          _buildDivider(theme),
           _buildListTile(
-            title: 'تسجيل الخروج',
-            icon: Icons.logout,
-            textColor: const Color(0xFFD9534F),
-            iconColor: const Color(0xFFD9534F),
-            trailing: const Icon(Icons.chevron_left, color: AppColors.oliveGrey),
+            theme: theme,
+            title: 'logout'.tr(),
+            icon: Icons.logout_rounded,
+            textColor: colorScheme.error,
+            iconColor: colorScheme.error,
+            trailing: Icon(isAr ? Icons.chevron_left : Icons.chevron_right, color: colorScheme.error.withValues(alpha: 0.5)),
             onTap: () => _handleLogout(context),
           ),
         ],
@@ -173,49 +479,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _handleLogout(BuildContext context) async {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('تسجيل الخروج', textAlign: TextAlign.right),
-        content: const Text('هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟', textAlign: TextAlign.right),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: colorScheme.surface,
+        title: Text('logout'.tr(), textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurface)),
+        content: Text('logout_confirm'.tr(), textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.8))),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('إلغاء', style: TextStyle(color: AppColors.oliveGrey)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD9534F),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text('نعم، الخروج', style: TextStyle(color: Colors.white)),
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text('cancel'.tr(), style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5))),
+                ),
+              ),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorScheme.error,
+                    foregroundColor: colorScheme.onError,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('confirm'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
 
-    if (confirm == true && context.mounted) {
+    if (confirm == true) {
       await AuthService().logout();
-      if (context.mounted) {
-        context.go('/login');
-      }
+      // Use the static router to navigate — avoids async context gap issues
+      // GoRouter redirect will handle it automatically via notifyListeners,
+      // but we explicitly push to be safe.
+      AppRouter.router.go('/login');
     }
   }
 
-  void _showComingSoon(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(fontFamily: 'Plus Jakarta Sans')),
-        backgroundColor: AppColors.mossForest,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
   Widget _buildListTile({
+    required ThemeData theme,
     required String title,
     required IconData icon,
     required Widget trailing,
@@ -223,14 +534,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Color? iconColor,
     VoidCallback? onTap,
   }) {
+    final colorScheme = theme.colorScheme;
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      leading: Icon(icon, color: iconColor ?? AppColors.mossForest),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      leading: Container(
+         padding: const EdgeInsets.all(8),
+         decoration: BoxDecoration(
+           color: (iconColor ?? colorScheme.primary).withValues(alpha: 0.1),
+           shape: BoxShape.circle,
+         ),
+         child: Icon(icon, color: iconColor ?? colorScheme.primary, size: 20),
+      ),
       title: Text(
         title,
         style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: textColor ?? AppColors.slateCharcoal,
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: textColor ?? colorScheme.onSurface,
         ),
       ),
       trailing: trailing,
@@ -238,9 +558,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFFEBEBEB),
+  Widget _buildDivider(ThemeData theme) {
+    return Divider(
+      color: theme.colorScheme.outline.withValues(alpha: 0.08),
       height: 1,
       thickness: 1,
       indent: 20,

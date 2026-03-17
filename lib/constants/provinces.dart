@@ -10,8 +10,6 @@ class Province {
   });
 }
 
-// For demonstration, a few main provinces are included. 
-// A real app would have all 58 here or fetched from the backend.
 const List<Province> algeriaProvinces = [
   Province(id: 1, nameEn: 'Adrar', nameAr: 'أدرار'),
   Province(id: 2, nameEn: 'Chlef', nameAr: 'الشلف'),
@@ -44,5 +42,42 @@ const List<Province> algeriaProvinces = [
   Province(id: 29, nameEn: 'Mascara', nameAr: 'معسكر'),
   Province(id: 30, nameEn: 'Ouargla', nameAr: 'ورقلة'),
   Province(id: 31, nameEn: 'Oran', nameAr: 'وهران'),
-  // ... rest up to 58 in real app
+  Province(id: 32, nameEn: 'El Bayadh', nameAr: 'البيض'),
+  Province(id: 33, nameEn: 'Illizi', nameAr: 'إليزي'),
+  Province(id: 34, nameEn: 'Bordj Bou Arréridj', nameAr: 'برج بوعريريج'),
+  Province(id: 35, nameEn: 'Boumerdès', nameAr: 'بومرداس'),
+  Province(id: 36, nameEn: 'El Tarf', nameAr: 'الطارف'),
+  Province(id: 37, nameEn: 'Tindouf', nameAr: 'تندوف'),
+  Province(id: 38, nameEn: 'Tissemsilt', nameAr: 'تيسمسيلت'),
+  Province(id: 39, nameEn: 'El Oued', nameAr: 'الوادي'),
+  Province(id: 40, nameEn: 'Khenchela', nameAr: 'خنشلة'),
+  Province(id: 41, nameEn: 'Souk Ahras', nameAr: 'سوق أهراس'),
+  Province(id: 42, nameEn: 'Tipaza', nameAr: 'تيبازة'),
+  Province(id: 43, nameEn: 'Mila', nameAr: 'ميلة'),
+  Province(id: 44, nameEn: 'Aïn Defla', nameAr: 'عين الدفلى'),
+  Province(id: 45, nameEn: 'Naama', nameAr: 'النعامة'),
+  Province(id: 46, nameEn: 'Aïn Témouchent', nameAr: 'عين تموشنت'),
+  Province(id: 47, nameEn: 'Ghardaïa', nameAr: 'غرداية'),
+  Province(id: 48, nameEn: 'Relizane', nameAr: 'غليزان'),
+  Province(id: 49, nameEn: 'Timimoun', nameAr: 'تيميمون'),
+  Province(id: 50, nameEn: 'Bordj Badji Mokhtar', nameAr: 'برج باجي مختار'),
+  Province(id: 51, nameEn: 'Ouled Djellal', nameAr: 'أولاد جلال'),
+  Province(id: 52, nameEn: 'Béni Abbès', nameAr: 'بني عباس'),
+  Province(id: 53, nameEn: 'In Salah', nameAr: 'عين صالح'),
+  Province(id: 54, nameEn: 'In Guezzam', nameAr: 'عين قزام'),
+  Province(id: 55, nameEn: 'Touggourt', nameAr: 'تقرت'),
+  Province(id: 56, nameEn: 'Djanet', nameAr: 'جانت'),
+  Province(id: 57, nameEn: 'El M\'Ghair', nameAr: 'المغير'),
+  Province(id: 58, nameEn: 'El Meniaa', nameAr: 'المنيعة'),
+  Province(id: 59, nameEn: 'Aflou', nameAr: 'آفلو'),
+  Province(id: 60, nameEn: 'Barika', nameAr: 'بريكة'),
+  Province(id: 61, nameEn: 'Ksar Chellala', nameAr: 'قصر الشلالة'),
+  Province(id: 62, nameEn: 'Messaad', nameAr: 'مسعد'),
+  Province(id: 63, nameEn: 'Ain Oussera', nameAr: 'عين وسارة'),
+  Province(id: 64, nameEn: 'Bou Saada', nameAr: 'بوسعادة'),
+  Province(id: 65, nameEn: 'El Abiodh Sidi Cheikh', nameAr: 'الأبيض سيدي الشيخ'),
+  Province(id: 66, nameEn: 'El Kantara', nameAr: 'القنطرة'),
+  Province(id: 67, nameEn: 'Bir el Ater', nameAr: 'بئر العاتر'),
+  Province(id: 68, nameEn: 'Ksar el Boukhari', nameAr: 'قصر البخاري'),
+  Province(id: 69, nameEn: 'Aricha', nameAr: 'العريشة'),
 ];

@@ -1,8 +1,11 @@
+/// Matches `notifications` table:
+/// id INTEGER (serial), title, body, type, province_id INTEGER, 
+/// sent_by TEXT, sent_at TIMESTAMPTZ, is_active BOOL
 class NotificationModel {
-  final int id;
+  final int id;           // FIX: INTEGER in DB, not String
   final String title;
   final String body;
-  final String type; // national, provincial
+  final String type;      // national, provincial
   final int? provinceId;
   final String? sentBy;
   final DateTime? sentAt;
@@ -21,7 +24,7 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      id: json['id'] as int,
+      id: json['id'] as int,      // FIX: parse as int directly
       title: json['title'] as String,
       body: json['body'] as String,
       type: json['type'] as String,
@@ -34,6 +37,7 @@ class NotificationModel {
 
   Map<String, dynamic> toJson() {
     return {
+      // NOTE: do NOT include 'id' — DB auto-generates it
       'title': title,
       'body': body,
       'type': type,

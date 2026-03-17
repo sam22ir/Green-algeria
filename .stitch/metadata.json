@@ -1,0 +1,36 @@
+{
+  "name": "projects/5105441748622498278",
+  "projectId": "5105441748622498278",
+  "title": "green-algeria-design",
+  "visibility": "PRIVATE",
+  "deviceType": "MOBILE",
+  "designTheme": {
+    "colorMode": "LIGHT",
+    "font": "PLUS_JAKARTA_SANS",
+    "roundness": "ROUND_TWELVE",
+    "customColor": "#606d37",
+    "saturation": 2
+  },
+  "screens": {
+    "public_profile": {
+      "id": "532cab19b8b743108b82ed1e7b07f799",
+      "sourceScreen": "projects/5105441748622498278/screens/532cab19b8b743108b82ed1e7b07f799",
+      "title": "ملف المتطوع - الجزائر خضراء",
+      "width": 780,
+      "height": 1778,
+      "generatedBy": "figaro_agent"
+    },
+    "province_detail": {
+      "id": "537259ccbf354b0b99973648b3b85e6a",
+      "sourceScreen": "projects/5105441748622498278/screens/537259ccbf354b0b99973648b3b85e6a",
+      "title": "تفاصيل الولاية - الجزائر خضراء",
+      "width": 780,
+      "height": 1816,
+      "generatedBy": "figaro_agent"
+    }
+  },
+  "metadata": {
+    "userRole": "OWNER",
+    "generatedAt": "2026-03-15T00:06:48+01:00"
+  }
+}

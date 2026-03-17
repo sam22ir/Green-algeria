@@ -3,20 +3,20 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "green-algeria-firebase",
-          "appId": "1:318014479319:android:a68a1d23cc60641118c992",
+          "projectId": "green-algeria-f0278",
+          "appId": "1:177139315328:android:e67b7072ba3ab18b21ec65",
           "fileOutput": "android/app/google-services.json"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "green-algeria-firebase",
+          "projectId": "green-algeria-f0278",
           "configurations": {
-            "android": "1:318014479319:android:a68a1d23cc60641118c992",
-            "ios": "1:318014479319:ios:a9f4bfa57bed4e8618c992",
-            "macos": "1:318014479319:ios:a9f4bfa57bed4e8618c992",
-            "web": "1:318014479319:web:f8c6b75974ea005118c992",
-            "windows": "1:318014479319:web:b876d2bbee2f18d218c992"
+            "android": "1:177139315328:android:e67b7072ba3ab18b21ec65",
+            "ios": "1:177139315328:ios:97d1a0dac68bed2521ec65",
+            "macos": "1:177139315328:ios:97d1a0dac68bed2521ec65",
+            "web": "1:177139315328:web:ed0a30ebef5f16dd21ec65",
+            "windows": "1:177139315328:web:1a2419de487f6c2b21ec65"
           }
         }
       }
@@ -24,7 +24,25 @@
   },
   "auth": {
     "providers": {
-      "emailPassword": true
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Green Algeria",
+        "supportEmail": "samirsaadi610@gmail.com"
+      }
     }
+  },
+  "hosting": {
+    "public": "out",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }
