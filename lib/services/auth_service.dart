@@ -11,11 +11,23 @@ import '../constants/avatars.dart';
 class AuthService extends ChangeNotifier {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
-  
+
   AuthService._internal() {
+    // استمع لتغييرات Auth
     _supabase.auth.onAuthStateChange.listen((data) {
       _syncUserRecord(data.session?.user);
     });
+
+    // ✅ إصلاح رئيسي: إذا كانت هناك جلسة محفوظة مسبقاً (restart / update)
+    // onAuthStateChange لا يُطلق فوراً — نُزامن يدوياً بدون انتظار
+    final existingUser = _supabase.auth.currentUser;
+    if (existingUser != null) {
+      // لا ننتظر — نبدأ الجلسة المحفوظة في الخلفية
+      _syncUserRecord(existingUser);
+    } else {
+      // لا يوجد مستخدم — انتهى التحميل فوراً
+      _isLoading = false;
+    }
   }
 
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -35,56 +47,71 @@ class AuthService extends ChangeNotifier {
   Future<void> _syncUserRecord(User? user) async {
     if (user == null) {
       _currentUserModel = null;
-    } else {
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    // ✅ لا نضع isLoading=true هنا لأن ذلك يُجمّد الـ splash
+    // فقط نُزامن البيانات بصمت
+    try {
       _currentUserModel = await _supabaseService.getUserRecord(user.id);
-      
+
       if (_currentUserModel == null) {
+        // مستخدم جديد — إنشاء سجل
         final randomAvatar = AppAvatars.getRandom();
         final newUser = UserModel(
           id: user.id,
-          fullName: user.userMetadata?['full_name'] ?? user.userMetadata?['name'] ?? 'unspecified'.tr(),
+          fullName: user.userMetadata?['full_name'] ??
+              user.userMetadata?['name'] ??
+              'unspecified'.tr(),
           email: user.email ?? '',
           role: user.userMetadata?['role'] ?? 'volunteer',
           provinceId: user.userMetadata?['province_id'] as int?,
-          avatarAsset: user.userMetadata?['avatar_asset'] ?? randomAvatar,
+          avatarAsset:
+              user.userMetadata?['avatar_asset'] ?? randomAvatar,
         );
         await _supabaseService.createUserRecord(newUser);
-        
-        // Also update auth metadata if it was missing the avatar_asset
+
         if (user.userMetadata?['avatar_asset'] == null) {
-          await _supabase.auth.updateUser(UserAttributes(data: {'avatar_asset': randomAvatar}));
+          await _supabase.auth.updateUser(
+              UserAttributes(data: {'avatar_asset': randomAvatar}));
         }
-        
         _currentUserModel = newUser;
       }
 
-      // Handle FCM Subscriptions on successful sync — fire-and-forget so they
-      // don't delay navigation to the home screen.
-      Future(() async {
-        try {
-          final notifications = NotificationService();
-          notifications.subscribeToTopic('national-notifications');
-          notifications.subscribeToTopic('national-campaigns');
-
-          final pId = _currentUserModel?.provinceId ?? user.userMetadata?['province_id'];
-          if (pId != null) {
-            notifications.subscribeToTopic('province-$pId');
-            notifications.subscribeToTopic('province-$pId-campaigns');
-          }
-        } catch (e) {
-          debugPrint('Failed to subscribe to FCM topics: $e');
-        }
-      });
+      // ✅ FCM في الخلفية الكاملة — لا تؤخر التنقل أبداً
+      _subscribeFcmAsync(user);
+    } catch (e) {
+      debugPrint('_syncUserRecord error: $e');
     }
+
     _isLoading = false;
     notifyListeners();
   }
 
+  /// FCM subscriptions — fire-and-forget في isolate منفصل
+  void _subscribeFcmAsync(User user) {
+    Future.microtask(() async {
+      try {
+        final notifications = NotificationService();
+        unawaited(notifications.subscribeToTopic('national-notifications'));
+        unawaited(notifications.subscribeToTopic('national-campaigns'));
+
+        final pId = _currentUserModel?.provinceId ??
+            user.userMetadata?['province_id'];
+        if (pId != null) {
+          unawaited(notifications.subscribeToTopic('province-$pId'));
+          unawaited(notifications.subscribeToTopic('province-$pId-campaigns'));
+        }
+      } catch (e) {
+        debugPrint('FCM subscribe error: $e');
+      }
+    });
+  }
+
   /// Public helper — force-re-syncs the user model from supabase.
-  /// Call this after writing to the DB outside of an onAuthStateChange event.
   Future<void> syncCurrentUser() async {
-    _isLoading = true;
-    notifyListeners();
     await _syncUserRecord(_supabase.auth.currentUser);
   }
 
@@ -105,7 +132,7 @@ class AuthService extends ChangeNotifier {
           'province_id': provinceId,
           'role': 'volunteer',
           'avatar_asset': selectedAvatar,
-        }
+        },
       );
     } catch (e) {
       debugPrint('Error registering user: $e');
@@ -125,9 +152,10 @@ class AuthService extends ChangeNotifier {
   Future<void> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return; 
+      if (googleUser == null) return;
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       final response = await _supabase.auth.signInWithIdToken(
         provider: OAuthProvider.google,
@@ -136,14 +164,13 @@ class AuthService extends ChangeNotifier {
       );
 
       if (response.user != null) {
-        // Database sync is handled by _syncUserRecord via onAuthStateChange
-        debugPrint('Google Sign-In successful for: ${response.user!.email}');
+        debugPrint('Google Sign-In successful: ${response.user!.email}');
       }
     } on AuthException catch (e) {
-      debugPrint('Error with Google SignIn: ${e.message}');
+      debugPrint('Google SignIn AuthException: ${e.message}');
       rethrow;
     } catch (e) {
-      debugPrint('Error with Google SignIn: $e');
+      debugPrint('Google SignIn error: $e');
       rethrow;
     }
   }
@@ -160,41 +187,49 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// ✅ logout محسّن: لا ينتظر FCM — ينفّذ كل شيء بالتوازي
   Future<void> logout() async {
-    // Unsubscribe from topics before logging out
-    try {
-      final notifications = NotificationService();
-      await notifications.unsubscribeFromTopic('national-notifications');
-      await notifications.unsubscribeFromTopic('national-campaigns');
-      
-      if (_currentUserModel?.provinceId != null) {
-        final pId = _currentUserModel!.provinceId;
-        await notifications.unsubscribeFromTopic('province-$pId');
-        await notifications.unsubscribeFromTopic('province-$pId-campaigns');
-      }
-    } catch (e) {
-      debugPrint('Failed to unsubscribe from FCM topics: $e');
-    }
+    // إلغاء الاشتراكات + مسح FCM token بالتوازي (fire-and-forget)
+    _unsubscribeFcmAsync();
 
-    // Clear FCM token from database so no push is delivered after logout
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId != null) {
-        await _supabase
-            .from('users')
-            .update({'fcm_token': null})
-            .eq('id', userId);
-      }
-    } catch (e) {
-      debugPrint('Failed to clear FCM token: $e');
-    }
-
+    // signOut مباشرة — لا ننتظر FCM
     try {
       await _googleSignIn.signOut();
-    } catch (e) {
-      // Ignore if google sign in fails to sign out
-    }
+    } catch (_) {}
+
     await _supabase.auth.signOut();
+  }
+
+  void _unsubscribeFcmAsync() {
+    final userId = _supabase.auth.currentUser?.id;
+    final pId = _currentUserModel?.provinceId;
+
+    Future.microtask(() async {
+      try {
+        final notifications = NotificationService();
+        unawaited(notifications.unsubscribeFromTopic('national-notifications'));
+        unawaited(notifications.unsubscribeFromTopic('national-campaigns'));
+        if (pId != null) {
+          unawaited(notifications.unsubscribeFromTopic('province-$pId'));
+          unawaited(notifications.unsubscribeFromTopic('province-$pId-campaigns'));
+        }
+      } catch (e) {
+        debugPrint('FCM unsubscribe error: $e');
+      }
+    });
+
+    // مسح FCM token بالتوازي
+    if (userId != null) {
+      Future.microtask(() async {
+        try {
+          await _supabase
+              .from('users')
+              .update({'fcm_token': null}).eq('id', userId);
+        } catch (e) {
+          debugPrint('FCM token clear error: $e');
+        }
+      });
+    }
   }
 
   Future<void> updatePassword(String newPassword) async {
@@ -205,4 +240,9 @@ class AuthService extends ChangeNotifier {
       rethrow;
     }
   }
+}
+
+// ignore: unused_element
+void unawaited(Future<void> future) {
+  future.catchError((e) => debugPrint('unawaited error: $e'));
 }
