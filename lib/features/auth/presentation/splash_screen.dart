@@ -1,7 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:provider/provider.dart';
 import '../../../services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,32 +12,56 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _navigated = false;
+
   @override
   void initState() {
     super.initState();
+    // ✅ بدل polling — نستمع مباشرة لـ AuthService
+    // إذا انتهى التحميل فورياً نتنقل بعد الـ frame الأول
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAuth();
+      _tryNavigate();
     });
   }
 
-  Future<void> _checkAuth() async {
-    final authService = AuthService();
+  void _tryNavigate() {
+    if (!mounted || _navigated) return;
+    final auth = context.read<AuthService>();
 
-    // Wait until AuthService finishes syncing the user record
-    // so GoRouter redirect can correctly read hasProvince
-    if (authService.isLoading) {
-      await Future.doWhile(() async {
-        await Future.delayed(const Duration(milliseconds: 100));
-        return authService.isLoading;
-      });
+    if (!auth.isLoading) {
+      _navigate(auth);
+      return;
     }
 
-    if (!mounted) return;
+    // ✅ استمع للتغيير بدل polling
+    void listener() {
+      if (!mounted || _navigated) return;
+      final a = context.read<AuthService>();
+      if (!a.isLoading) {
+        a.removeListener(listener);
+        _navigate(a);
+      }
+    }
 
-    final user = authService.firebaseUser;
+    auth.addListener(listener);
 
+    // ✅ Timeout أمان: إذا لم يتحرك خلال 5 ثواني → اذهب للـ login
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!mounted || _navigated) return;
+      final a = context.read<AuthService>();
+      a.removeListener(listener);
+      debugPrint('SplashScreen: auth timeout — forcing navigation');
+      _navigate(a);
+    });
+  }
+
+  void _navigate(AuthService auth) {
+    if (!mounted || _navigated) return;
+    _navigated = true;
+
+    final user = auth.firebaseUser;
     if (user != null) {
-      if (authService.hasProvince) {
+      if (auth.hasProvince) {
         context.go('/');
       } else {
         context.go('/select-province');
@@ -66,10 +90,10 @@ class _SplashScreenState extends State<SplashScreen> {
             Text(
               'app_name'.tr(),
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: colorScheme.onPrimary,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
+                    color: colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
             ),
             const SizedBox(height: 48),
             CircularProgressIndicator(
