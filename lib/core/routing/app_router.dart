@@ -45,18 +45,22 @@ class AppRouter {
     refreshListenable: AuthService(),
     redirect: (context, state) {
       final authService = AuthService();
-      final isAuth = authService.firebaseUser != null;
       final path = state.uri.toString();
-      final isLoginRoute = path == '/login' || path == '/register';
       final isSplashRoute = path == '/splash';
+
+      // ✅ دائماً اسمح بالـ Splash — هي من تتحكم في التنقل
+      if (isSplashRoute) return null;
+
+      final isAuth = authService.firebaseUser != null;
+      final isLoginRoute = path == '/login' || path == '/register';
       final isProvinceRoute = path == '/select-province';
-      // ✅ إصلاح: هذه الشاشات عامة ولا تحتاج مصادقة
       final isPublicRoute = isLoginRoute
           || isSplashRoute
           || path == '/forgot-password'
           || path.startsWith('/reset-password');
 
-      if (isSplashRoute) return null;
+      // ✅ إذا لا يزال يُحمّل → ابقَ في المكان الحالي (لا تُعيد التوجيه)
+      if (authService.isLoading) return null;
 
       // غير مسجّل + مسار محمي → /login
       if (!isAuth && !isPublicRoute) {
@@ -64,14 +68,12 @@ class AppRouter {
       }
 
       if (isAuth) {
-        if (authService.isLoading) return null;
-
-        // لا ولاية → /select-province (لكن لا نُعيد توجيه forgot/reset)
+        // لا ولاية → /select-province
         if (!authService.hasProvince && !isProvinceRoute && !isPublicRoute) {
           return '/select-province';
         }
 
-        // مسجّل + له ولاية + على شاشة login/register/province → /
+        // مسجّل + له ولاية + على شاشة تسجيل/province → /
         if (authService.hasProvince && (isLoginRoute || isProvinceRoute)) {
           return '/';
         }
