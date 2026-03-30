@@ -70,6 +70,7 @@ dependencies:
   flutter_map_cache: ^1.5.2
   dio_cache_interceptor: ^3.5.1
   dio_cache_interceptor_file_store: ^1.2.3
+  flutter_image_compress: ^2.3.0
 
 dev_dependencies:
   flutter_test:
